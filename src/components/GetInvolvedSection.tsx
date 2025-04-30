@@ -114,7 +114,7 @@ export default function GetInvolvedSection() {
               required
               value={formData.name}
               onChange={handleChange}
-              className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary dark:bg-gray-700 dark:text-white sm:text-sm"
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary bg-white text-gray-900 dark:bg-gray-700 dark:text-white dark:border-gray-600 sm:text-sm"
               disabled={isLoading}
             />
           </div>
@@ -129,7 +129,7 @@ export default function GetInvolvedSection() {
               required
               value={formData.email}
               onChange={handleChange}
-              className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary dark:bg-gray-700 dark:text-white sm:text-sm"
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary bg-white text-gray-900 dark:bg-gray-700 dark:text-white dark:border-gray-600 sm:text-sm"
               disabled={isLoading}
             />
           </div>
@@ -143,7 +143,7 @@ export default function GetInvolvedSection() {
               id="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary dark:bg-gray-700 dark:text-white sm:text-sm"
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary bg-white text-gray-900 dark:bg-gray-700 dark:text-white dark:border-gray-600 sm:text-sm"
               disabled={isLoading}
             />
           </div>
@@ -157,7 +157,7 @@ export default function GetInvolvedSection() {
               rows={4}
               value={formData.interests}
               onChange={handleChange}
-              className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary dark:bg-gray-700 dark:text-white sm:text-sm"
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary bg-white text-gray-900 dark:bg-gray-700 dark:text-white dark:border-gray-600 sm:text-sm"
               placeholder="e.g., Door-knocking, phone banking, event setup..."
               disabled={isLoading}
             />

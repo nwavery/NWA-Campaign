@@ -27,7 +27,7 @@ function RotatingIcon({ icon, isHovered }: { icon: string; isHovered: boolean })
     <group ref={meshRef}>
       <Text
         fontSize={1.5} // Adjust size as needed
-        color="#F59E0B" // Use brand-accent color
+        color="#3B82F6" // Change color to primary brand blue
         anchorX="center"
         anchorY="middle"
       >
@@ -56,10 +56,10 @@ export default function IssueCard({ id, title, description, icon }: IssueCardPro
         </Canvas>
       </div>
 
-      <h3 className="text-xl font-semibold mb-2 text-center text-brand-secondary dark:text-green-400">
+      <h3 className="text-xl font-semibold mb-2 text-center text-red-600 dark:text-red-400">
         {title}
       </h3>
-      <p className="text-gray-600 dark:text-gray-400 text-center">
+      <p className="text-gray-600 dark:text-gray-200 text-center">
         {description}
       </p>
     </div>
