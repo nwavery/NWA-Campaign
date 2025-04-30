@@ -27,7 +27,7 @@ export default function Footer() {
           {/* Contact Info */}
           <div>
             <h3 className="text-lg font-semibold text-white mb-3">Contact Us</h3>
-            <p className="mb-1">Email: <a href="mailto:info@nathanaveryforcongress.com" className="hover:text-white hover:underline">info@nathanaveryforcongress.com</a></p>
+            <p className="mb-1">Email: <a href="mailto:info@averyforok.com" className="hover:text-white hover:underline">info@averyforok.com</a></p>
             <p>Phone: (123) 456-7890</p>
             {/* TODO: Add physical address if applicable */}
           </div>

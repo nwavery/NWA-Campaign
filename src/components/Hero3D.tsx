@@ -23,7 +23,7 @@ function CampaignLogoModel() {
     <primitive
       ref={modelRef}
       object={scene.clone()} // Use primitive to render the loaded scene object
-      scale={2.0} // Adjust scale as needed based on your model size
+      scale={2.0} // Keep scale for now, might need adjustment with smaller canvas
       position={[0, 0.2, 0]} // Lowered model slightly (Y from 1.0 to 0.2)
     />
   );
@@ -45,8 +45,8 @@ export default function Hero3D() {
   // Note: Scroll-out animation will be controlled from the main page (page.tsx) using GSAP
 
   return (
-    // Set height to ~60% of viewport height
-    <div ref={containerRef} className="h-[60vh] w-full relative">
+    // Set height to ~40% of viewport height
+    <div ref={containerRef} className="h-[40vh] w-full relative">
       <Canvas camera={{ position: [0, 0.5, 4.5], fov: 50 }}> {/* Adjusted camera slightly */}
         {/* Simplified & Maximized Lighting */}
         {/* High intensity ambient light */}

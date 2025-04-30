@@ -61,7 +61,7 @@ export default function Home() {
     // Add ref to the main container
     <main ref={mainRef} className="flex min-h-screen flex-col">
       {/* Hero section - Removed sticky positioning and ref */}
-      <div className="h-[60vh]">
+      <div className="h-[40vh]">
         <Hero3D />
       </div>
 

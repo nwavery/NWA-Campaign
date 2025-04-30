@@ -38,11 +38,17 @@ async function handleRequest(req: NextRequest) {
       return NextResponse.json({ error: 'Donation amount is too large.' }, { status: 400 });
     }
 
+    // Determine base URL based on environment
+    const environment = process.env.NODE_ENV;
+    const productionUrl = process.env.PRODUCTION_URL || 'https://averyforok.com'; // Your production URL
+    const developmentUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = environment === 'production' ? productionUrl : developmentUrl;
+
     // 3. Define URLs
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const successUrl = `${baseUrl}/thank-you`;
     const cancelUrl = `${baseUrl}/`;
 
+    console.log(`Base URL: ${baseUrl}`);
     console.log(`Creating Stripe session for amount: ${amountInCents} cents`);
     // 4. Create Checkout Session
     const session = await stripe.checkout.sessions.create({
