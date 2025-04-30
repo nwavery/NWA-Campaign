@@ -33,19 +33,24 @@ export default function AboutSection() {
             </div>
           </div>
 
-          {/* Bio and Policies */}
+          {/* Bio and Policies - Updated Bio */}
           <div ref={textContentRef} className="w-full md:w-2/3 text-center md:text-left">
-            <h3 className="text-2xl font-semibold mb-4">Nathan Avery</h3>
+            <h3 className="text-2xl font-semibold mb-4">Why I'm Running</h3> {/* Updated sub-heading */}
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
-              {/* Replace with actual bio */}
-              [Placeholder Bio: Nathan Avery is dedicated to serving the people of Oklahoma's 3rd District... Add detailed bio here.] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              {/* Updated bio text */}
+              "As AI and emerging technologies reshape our lives, Oklahoma deserves a voice in Washington who truly understands how they work—and how they should work for people," Nathan says. He believes in meeting constituents where they are—online, on the phone, or face-to-face—and using technology to build the most direct path between voters and their representative.
             </p>
-            <h4 className="text-xl font-semibold mb-3 text-brand-accent dark:text-amber-400">Key Policies</h4>
-            <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-1">
-              {/* Replace with actual policies */}
-              <li>Policy Item 1: [Specific policy focus for Nathan Avery]</li>
-              <li>Policy Item 2: [Specific policy focus for Nathan Avery]</li>
-              <li>Policy Item 3: [Specific policy focus for Nathan Avery]</li>
+            <h4 className="text-xl font-semibold mb-3 text-brand-accent dark:text-amber-400">Core Strengths & Values</h4>
+            <ul className="list-none space-y-3 text-gray-700 dark:text-gray-300">
+              <li>
+                <strong className="font-semibold">Communication:</strong> Whether breaking down technical concepts for neighbors in coffee shops or translating policy debates into plain English, Nathan excels at listening, clarifying, and connecting.
+              </li>
+              <li>
+                <strong className="font-semibold">Empathy:</strong> From his years behind the wheel as an Uber driver to daily stand-ups with software teams, he prides himself on understanding diverse perspectives—and amplifying them.
+              </li>
+              <li>
+                <strong className="font-semibold">Dedication:</strong> With only his loyal dog, Willow, by his side, Nathan has the freedom to devote 100% of his time to listening tours, town halls, and constituent services.
+              </li>
             </ul>
             {/* Fade-in text animation is handled by page.tsx */}
           </div>

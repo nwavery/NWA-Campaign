@@ -25,9 +25,9 @@ const issues = [
   },
    {
     id: 4,
-    title: 'Environment',
-    description: 'Championing initiatives for clean energy and conservation.',
-    icon: '🌳',
+    title: 'Technology',
+    description: 'Advocating for smart technology policies and digital infrastructure.',
+    icon: '💻',
   },
    {
     id: 5,
