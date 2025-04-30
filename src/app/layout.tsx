@@ -12,9 +12,38 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteTitle = "Nathan Avery for Congress | Oklahoma's 3rd District";
+const siteDescription = "Official campaign website for Nathan Avery, running for U.S. Representative in Oklahoma's 3rd Congressional District.";
+const siteUrl = process.env.PRODUCTION_URL || 'http://localhost:3000'; // Use production URL or fallback
+const ogImageUrl = `${siteUrl}/nathan-avery.jpg`; // Construct full URL for the OG image
+
 export const metadata: Metadata = {
-  title: "Nathan Avery for Congress | Oklahoma's 3rd District",
-  description: "Official campaign website for Nathan Avery, running for U.S. Representative in Oklahoma's 3rd Congressional District.",
+  title: siteTitle,
+  description: siteDescription,
+  // Add Open Graph tags
+  openGraph: {
+    title: siteTitle,
+    description: siteDescription,
+    url: siteUrl,
+    type: 'website',
+    images: [
+      {
+        url: ogImageUrl,
+        width: 800, // Provide dimensions if known
+        height: 800, // Provide dimensions if known
+        alt: 'Nathan Avery',
+      },
+    ],
+  },
+  // Optionally, add Twitter specific tags if desired
+  // twitter: {
+  //   card: 'summary_large_image',
+  //   title: siteTitle,
+  //   description: siteDescription,
+  //   images: [ogImageUrl],
+  //   // Add creator handle if available
+  //   // creator: '@YourTwitterHandle',
+  // },
 };
 
 export default function RootLayout({

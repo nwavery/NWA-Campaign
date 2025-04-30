@@ -1,0 +1,6 @@
+# Allow all web crawlers access to all content
+User-agent: *
+Allow: /
+
+# Point crawlers to the sitemap
+Sitemap: ${process.env.PRODUCTION_URL || 'http://localhost:3000'}/sitemap.xml 
