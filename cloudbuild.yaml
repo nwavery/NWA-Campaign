@@ -1,21 +1,27 @@
 # cloudbuild.yaml
 steps:
-  # Build the container image using Docker via gcloud script
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: bash
+  # Build the container image using the Dockerfile in the current directory
+  - name: 'gcr.io/cloud-builders/docker'
     args:
-      - '-c'
-      - |
-        docker build \
-          --tag "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$COMMIT_SHA" \
-          --build-arg "NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}" \
-          --build-arg "NEXT_PUBLIC_BASE_URL=${_PRODUCTION_URL}" \
-          --build-arg "PRODUCTION_URL=${_PRODUCTION_URL}" \
-          .
+      - 'build'
+      # Construct the image tag using provided substitutions
+      - '--tag'
+      # Use the user-defined _COMMIT_SHA passed from the workflow
+      - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}"
+      # Pass build arguments to the Dockerfile, using provided substitutions
+      - '--build-arg'
+      - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}'
+      - '--build-arg'
+      # Use _PRODUCTION_URL substitution for both NEXT_PUBLIC_BASE_URL and PRODUCTION_URL build args
+      - 'NEXT_PUBLIC_BASE_URL=${_PRODUCTION_URL}'
+      - '--build-arg'
+      - 'PRODUCTION_URL=${_PRODUCTION_URL}'
+      # Specify the build context directory
+      - '.'
     id: Build
 
 # Define expected substitution variables that can be passed via --substitutions
-# Default substitutions like PROJECT_ID and COMMIT_SHA are automatically available
+# Default substitutions like PROJECT_ID are automatically available
 substitutions:
   _GCP_REGION: 'us-central1' 
   # Default, can be overridden if needed
@@ -23,6 +29,7 @@ substitutions:
   # Default, can be overridden if needed
   _SERVICE_NAME: 'nwa-campaign-website'
   # Default, can be overridden if needed
+  _COMMIT_SHA: '' # Must be passed in via --substitutions from workflow
   _NEXT_PUBLIC_STRIPE_PUBLIC_KEY: ''
   # Must be passed in via --substitutions
   _PRODUCTION_URL: ''
