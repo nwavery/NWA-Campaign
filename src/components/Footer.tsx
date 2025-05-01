@@ -48,7 +48,7 @@ export default function Footer() {
 
           {/* Social Media */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-3">Follow Us</h3>
+            <h3 className="text-lg font-semibold text-white mb-3">Follow Us!</h3>
             <div className="flex justify-center md:justify-start space-x-4">
               {socialLinks.map((link) => (
                 <a key={link.name} href={link.href} target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-white">
