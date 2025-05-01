@@ -19,10 +19,6 @@ steps:
       - '.'
     id: Build
 
-# Specify the images to push to Artifact Registry after successful build
-images:
-  - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$$COMMIT_SHA"
-
 # Define expected substitution variables that can be passed via --substitutions
 # Default substitutions like PROJECT_ID and COMMIT_SHA are automatically available
 substitutions:
