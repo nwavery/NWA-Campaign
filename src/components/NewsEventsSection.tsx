@@ -8,27 +8,27 @@ const events = [
     id: 1,
     type: 'Town Hall',
     title: 'Meet the Candidate Q&A',
-    date: '2024-08-15',
+    date: '2025-08-15',
     time: '7:00 PM',
-    location: 'City Hall Auditorium',
+    location: 'TBA',
     description: 'Join us for an open discussion and ask your questions directly to the candidate.'
   },
   {
     id: 2,
     type: 'Fundraiser',
-    title: 'Campaign Kickoff Dinner',
-    date: '2024-08-22',
+    title: 'Campaign Kickoff',
+    date: '2025-08-22',
     time: '6:30 PM',
-    location: 'The Grand Ballroom',
+    location: 'TBA',
     description: 'Support the campaign launch at our special kickoff fundraising event.'
   },
   {
     id: 3,
     type: 'Volunteer Day',
     title: 'Community Canvassing Event',
-    date: '2024-09-01',
+    date: '2025-09-01',
     time: '10:00 AM - 2:00 PM',
-    location: 'Campaign HQ',
+    location: 'TBA',
     description: 'Help us spread the word! Training and materials provided.'
   },
 ];
