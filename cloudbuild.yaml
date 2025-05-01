@@ -1,23 +1,28 @@
 # cloudbuild.yaml
 steps:
-  # Build the container image using Docker via gcloud script
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: bash
+  # Build the container image using the Dockerfile in the current directory
+  - name: 'gcr.io/cloud-builders/docker'
     args:
-      - '-c'
-      - |
-        # Step 1: Construct the image tag and write it to a temporary variable (or file if preferred)
-        IMAGE_TAG="${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}"
-        echo "Using tag: $IMAGE_TAG"
-
-        # Step 2: Build the image using the constructed tag
-        docker build \
-          --tag "$$IMAGE_TAG" \
-          --build-arg "NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}" \
-          --build-arg "NEXT_PUBLIC_BASE_URL=${_PRODUCTION_URL}" \
-          --build-arg "PRODUCTION_URL=${_PRODUCTION_URL}" \
-          .
+      - 'build'
+      # Construct the image tag using provided substitutions
+      - '--tag'
+      # Use the user-defined _COMMIT_SHA passed from the workflow
+      - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}"
+      # Pass build arguments to the Dockerfile, using provided substitutions
+      - '--build-arg'
+      - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}'
+      - '--build-arg'
+      # Use _PRODUCTION_URL substitution for both NEXT_PUBLIC_BASE_URL and PRODUCTION_URL build args
+      - 'NEXT_PUBLIC_BASE_URL=${_PRODUCTION_URL}'
+      - '--build-arg'
+      - 'PRODUCTION_URL=${_PRODUCTION_URL}'
+      # Specify the build context directory
+      - '.'
     id: Build
+
+# Specify the image to push to Artifact Registry after successful build
+images:
+  - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}"
 
 # Define expected substitution variables that can be passed via --substitutions
 # Default substitutions like PROJECT_ID are automatically available
