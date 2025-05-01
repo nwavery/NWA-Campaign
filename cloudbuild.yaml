@@ -1,13 +1,13 @@
 # cloudbuild.yaml
 steps:
-  # Build the container image using the Dockerfile in the current directory
+  # Step 1: Build the container image with a temporary tag
   - name: 'gcr.io/cloud-builders/docker'
+    id: BuildImage
     args:
       - 'build'
-      # Construct the image tag using provided substitutions
+      # Use a fixed temporary tag for the build itself
       - '--tag'
-      # Use the user-defined _COMMIT_SHA passed from the workflow
-      - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}"
+      - 'temp-image:latest'
       # Pass build arguments to the Dockerfile, using provided substitutions
       - '--build-arg'
       - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}'
@@ -18,9 +18,18 @@ steps:
       - 'PRODUCTION_URL=${_PRODUCTION_URL}'
       # Specify the build context directory
       - '.'
-    id: Build
 
-# Specify the image to push to Artifact Registry after successful build
+  # Step 2: Tag the built image with the correct Artifact Registry path and commit SHA
+  - name: 'gcr.io/cloud-builders/docker'
+    id: TagImage
+    args:
+      - 'tag'
+      - 'temp-image:latest' # Source image
+      # Target image with the correct substitution
+      - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}"
+    waitFor: [BuildImage]
+
+# Specify the final image to push to Artifact Registry after successful build
 images:
   - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}"
 
