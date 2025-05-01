@@ -24,7 +24,7 @@ async function getSheetsClient() {
 export async function POST(req: NextRequest) {
     // Basic validation: Check required ENV variables
     const sheetId = process.env.GOOGLE_SHEET_ID;
-    const sheetRange = process.env.GOOGLE_SHEET_RANGE; // e.g., 'Sheet1' or 'Volunteers!A1'
+    const sheetRange = process.env.GOOGLE_SHEET_RANGE; // e.g., 'Sheet1!A1' or 'Volunteers!A1'
     if (!sheetId || !sheetRange) {
         console.error('Google Sheet ID or Range not set in environment variables.');
         return NextResponse.json({ message: 'Server configuration error.' }, { status: 500 });
@@ -32,11 +32,11 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { name, email, phone, interests } = body;
+        const { name, email, phone, zip } = body;
 
         // Basic validation (expand as needed)
-        if (!name || !email) {
-            return NextResponse.json({ message: 'Name and Email are required' }, { status: 400 });
+        if (!name || !email || !zip) {
+            return NextResponse.json({ message: 'Name, Email, and Zip are required' }, { status: 400 });
         }
 
         // Get authenticated Sheets client
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
             name,
             email,
             phone || '', // Use empty string if phone is not provided
-            interests || '', // Use empty string if interests are not provided
+            zip,          // Use zip (it's required now)
             new Date().toISOString(), // Add a timestamp
         ];
 
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
         console.log('Google Sheets API response:', response.data);
 
         // Removed console.log of data itself
-        return NextResponse.json({ message: 'Sign-up successful! Thank you for your interest in volunteering with us.' }, { status: 200 });
+        return NextResponse.json({ message: 'Sign-up successful! Thank you for joining us.' }, { status: 200 });
 
     } catch (error: any) {
         console.error('Volunteer API Error (Google Sheets):', error);

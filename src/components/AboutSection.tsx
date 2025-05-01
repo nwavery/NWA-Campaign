@@ -18,17 +18,25 @@ export default function AboutSection() {
           About Nathan Avery
         </h2>
         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-          {/* Candidate Photo */}
-          <div ref={photoRef} className="w-full md:w-1/3 flex justify-center">
+          {/* Candidate Photo Area - Allow stacking */}
+          <div ref={photoRef} className="w-full md:w-1/3 flex flex-col items-center justify-center">
+             {/* Nathan's Photo */}
             <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden shadow-lg border-4 border-brand-accent dark:border-amber-400">
-              {/* Use the actual image path */}
               <Image
-                src="/nathan-avery.jpg" // Updated image path
+                src="/nathan-avery.jpg"
                 alt="Nathan Avery"
                 fill
                 className="object-cover"
-                // Removed placeholder background class
-                priority // Keep priority as it's likely high on the page
+                priority
+              />
+            </div>
+            {/* Willow's Photo - Add below with same styling + margin */}
+            <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden shadow-lg border-4 border-brand-accent dark:border-amber-400 mt-8">
+              <Image
+                src="/willow-montana.jpg"
+                alt="Willow the dog in Montana"
+                fill
+                className="object-cover"
               />
             </div>
           </div>
@@ -41,7 +49,7 @@ export default function AboutSection() {
               "As AI and emerging technologies reshape our lives, Oklahoma deserves a voice in Washington who truly understands how they work—and how they should work for people," Nathan says. He believes in meeting constituents where they are—online, on the phone, or face-to-face—and using technology to build the most direct path between voters and their representative.
             </p>
             <h4 className="text-xl font-semibold mb-3 text-red-600 dark:text-red-400">Core Strengths & Values</h4>
-            <ul className="list-none space-y-3 text-gray-700 dark:text-gray-300 mb-8">
+            <ul className="list-none space-y-3 text-gray-700 dark:text-gray-300 mb-8 text-lg">
               <li>
                 <strong className="font-semibold">Communication:</strong> Whether breaking down technical concepts for neighbors in coffee shops or translating policy debates into plain English, Nathan excels at listening, clarifying, and connecting.
               </li>
