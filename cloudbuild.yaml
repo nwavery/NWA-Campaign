@@ -6,8 +6,8 @@ steps:
       - 'build'
       # Construct the image tag using provided substitutions
       - '--tag'
-      # Test: Use built-in $PROJECT_ID instead of _COMMIT_SHA for diagnostics
-      - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$PROJECT_ID"
+      # Use the user-defined _COMMIT_SHA passed from the workflow
+      - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}"
       # Pass build arguments to the Dockerfile, using provided substitutions
       - '--build-arg'
       - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}'
