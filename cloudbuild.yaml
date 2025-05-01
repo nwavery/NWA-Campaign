@@ -1,13 +1,20 @@
 # cloudbuild.yaml
 steps:
-  # Build the container image using the Dockerfile in the current directory
+  # Step 1: Construct the image tag and write it to a file
+  - name: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}" > /workspace/image_tag.txt
+    id: PrepareTag
+
+  # Step 2: Build the container image using the tag from the file
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
-      # Construct the image tag using provided substitutions
+      # Read the tag from the file generated in the previous step
       - '--tag'
-      # Use the user-defined _COMMIT_SHA passed from the workflow
-      - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}"
+      - "$(cat /workspace/image_tag.txt)"
       # Pass build arguments to the Dockerfile, using provided substitutions
       - '--build-arg'
       - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}'
@@ -19,6 +26,7 @@ steps:
       # Specify the build context directory
       - '.'
     id: Build
+    waitFor: [PrepareTag] # Wait for the tag file to be created
 
 # Define expected substitution variables that can be passed via --substitutions
 # Default substitutions like PROJECT_ID are automatically available
