@@ -26,8 +26,13 @@ images:
 # Define expected substitution variables that can be passed via --substitutions
 # Default substitutions like PROJECT_ID and COMMIT_SHA are automatically available
 substitutions:
-  _GCP_REGION: 'us-central1' # Default, can be overridden if needed
-  _ARTIFACT_REGISTRY_REPOSITORY: 'nwa-campaign-images' # Default, can be overridden if needed
-  _SERVICE_NAME: 'nwa-campaign-website' # Default, can be overridden if needed
-  _NEXT_PUBLIC_STRIPE_PUBLIC_KEY: '' # Must be passed in via --substitutions
-  _PRODUCTION_URL: '' # Must be passed in via --substitutions 
+  _GCP_REGION: 'us-central1'
+  # Default, can be overridden if needed
+  _ARTIFACT_REGISTRY_REPOSITORY: 'nwa-campaign-images'
+  # Default, can be overridden if needed
+  _SERVICE_NAME: 'nwa-campaign-website'
+  # Default, can be overridden if needed
+  _NEXT_PUBLIC_STRIPE_PUBLIC_KEY: ''
+  # Must be passed in via --substitutions
+  _PRODUCTION_URL: ''
+  # Must be passed in via --substitutions 
