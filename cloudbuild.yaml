@@ -1,32 +1,23 @@
 # cloudbuild.yaml
 steps:
-  # Step 1: Construct the image tag and write it to a file
-  - name: 'bash'
+  # Build the container image using Docker via gcloud script
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: bash
     args:
       - '-c'
       - |
-        echo "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}" > /workspace/image_tag.txt
-    id: PrepareTag
+        # Step 1: Construct the image tag and write it to a temporary variable (or file if preferred)
+        IMAGE_TAG="${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}"
+        echo "Using tag: $IMAGE_TAG"
 
-  # Step 2: Build the container image using the tag from the file
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - 'build'
-      # Read the tag from the file generated in the previous step
-      - '--tag'
-      - "$(cat /workspace/image_tag.txt)"
-      # Pass build arguments to the Dockerfile, using provided substitutions
-      - '--build-arg'
-      - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}'
-      - '--build-arg'
-      # Use _PRODUCTION_URL substitution for both NEXT_PUBLIC_BASE_URL and PRODUCTION_URL build args
-      - 'NEXT_PUBLIC_BASE_URL=${_PRODUCTION_URL}'
-      - '--build-arg'
-      - 'PRODUCTION_URL=${_PRODUCTION_URL}'
-      # Specify the build context directory
-      - '.'
+        # Step 2: Build the image using the constructed tag
+        docker build \
+          --tag "$IMAGE_TAG" \
+          --build-arg "NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}" \
+          --build-arg "NEXT_PUBLIC_BASE_URL=${_PRODUCTION_URL}" \
+          --build-arg "PRODUCTION_URL=${_PRODUCTION_URL}" \
+          .
     id: Build
-    waitFor: [PrepareTag] # Wait for the tag file to be created
 
 # Define expected substitution variables that can be passed via --substitutions
 # Default substitutions like PROJECT_ID are automatically available
