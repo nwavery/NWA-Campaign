@@ -12,7 +12,7 @@ steps:
 
         # Step 2: Build the image using the constructed tag
         docker build \
-          --tag "$IMAGE_TAG" \
+          --tag "$$IMAGE_TAG" \
           --build-arg "NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}" \
           --build-arg "NEXT_PUBLIC_BASE_URL=${_PRODUCTION_URL}" \
           --build-arg "PRODUCTION_URL=${_PRODUCTION_URL}" \
