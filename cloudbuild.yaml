@@ -4,9 +4,9 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
-      # Construct the image tag using provided substitutions + default SHORT_SHA
+      # Construct the image tag using provided substitutions + default COMMIT_SHA
       - '--tag'
-      - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$$SHORT_SHA"
+      - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$COMMIT_SHA"
       # Pass build arguments to the Dockerfile, using provided substitutions
       - '--build-arg'
       - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}'
