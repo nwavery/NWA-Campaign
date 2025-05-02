@@ -3,12 +3,12 @@
 steps:
   # Step 1: Build the container image with a fixed temporary tag
   - name: 'gcr.io/cloud-builders/docker'
-    id: Build
+    id: BuildImage
     args:
       - 'build'
       - '--tag'
       # Use a fixed, simple tag that doesn't require substitution here
-      - 'image-to-tag:latest' 
+      - 'temp-image:latest'
       # Pass build arguments needed by the Dockerfile
       - '--build-arg'
       - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=$_NEXT_PUBLIC_STRIPE_PUBLIC_KEY'
@@ -19,45 +19,41 @@ steps:
       # Specify the build context directory
       - '.'
 
-  # Step 2a: Tag the image with $SHORT_SHA using gcloud
-  - name: 'gcr.io/cloud-builders/gcloud'
+  # Step 2: Tag the built image with the $SHORT_SHA tag using docker tag
+  - name: 'gcr.io/cloud-builders/docker'
     id: TagWithShortSHA
     args:
-      - 'artifacts'
-      - 'docker'
-      - 'tags'
-      - 'add'
-      - 'image-to-tag:latest' # Source image tag
-      # Target image tag with $SHORT_SHA
+      - 'tag'
+      - 'temp-image:latest' # Source image
+      # Target image using built-in $SHORT_SHA - hoping this substitutes correctly
       - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA'
-    waitFor: [Build]
+    waitFor: [BuildImage]
 
-  # Step 2b: Tag the image with 'latest' using gcloud
-  - name: 'gcr.io/cloud-builders/gcloud'
+  # Step 3: Tag the built image with the 'latest' tag using docker tag
+  - name: 'gcr.io/cloud-builders/docker'
     id: TagWithLatest
     args:
-      - 'artifacts'
-      - 'docker'
-      - 'tags'
-      - 'add'
-      - 'image-to-tag:latest' # Source image tag
-      # Target image tag with 'latest'
+      - 'tag'
+      - 'temp-image:latest' # Source image
+      # Target image using 'latest' tag
       - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
-    waitFor: [Build]
+    waitFor: [BuildImage]
 
-  # Step 3: Push the images using gcloud artifacts command
-  - name: 'gcr.io/cloud-builders/gcloud'
-    id: PushWithGcloud
+  # Step 4: Push the $SHORT_SHA tagged image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: PushShortSHA
     args:
-      - 'artifacts'
-      - 'docker'
-      - 'images'
       - 'push'
-      # Push both tags
       - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA'
+    waitFor: [TagWithShortSHA] # Wait for the specific tag step
+
+  # Step 5: Push the latest tagged image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: PushLatest
+    args:
+      - 'push'
       - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
-    # Wait for both tags to be added before pushing
-    waitFor: [TagWithShortSHA, TagWithLatest]
+    waitFor: [TagWithLatest] # Wait for the specific tag step
 
 
 # Define expected substitution variables that can be passed via --substitutions
@@ -66,12 +62,12 @@ substitutions:
   # Default, can be overridden if needed
   _GCP_REGION: 'us-central1'
   # Default, can be overridden if needed
-  _ARTIFACT_REGISTRY_REPOSITORY: 'nwa-campaign-images' 
+  _ARTIFACT_REGISTRY_REPOSITORY: 'nwa-campaign-images'
   # Default, can be overridden if needed
-  _SERVICE_NAME: 'nwa-campaign-website' 
+  _SERVICE_NAME: 'nwa-campaign-website'
   # _COMMIT_SHA removed - using built-in $SHORT_SHA instead
   # Must be passed in via --substitutions
-  _NEXT_PUBLIC_STRIPE_PUBLIC_KEY: '' 
+  _NEXT_PUBLIC_STRIPE_PUBLIC_KEY: ''
   # Must be passed in via --substitutions
   _PRODUCTION_URL: ''
 
