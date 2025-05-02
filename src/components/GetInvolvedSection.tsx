@@ -117,7 +117,7 @@ export default function GetInvolvedSection() {
       {/* Container still useful for centering/padding */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Position form column to the right half on medium+ screens */}
-        <div className="relative md:w-1/2 md:ml-auto bg-gray-50 dark:bg-gray-800 p-8 rounded-lg shadow-lg min-h-[600px] flex flex-col justify-center">
+        <div className="relative md:w-1/2 md:ml-auto p-8 rounded-lg shadow-lg min-h-[600px] flex flex-col justify-center">
           {/* Added min-h-[600px] here to ensure section height */}
           {/* Added flex flex-col justify-center again */}
           
