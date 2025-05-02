@@ -5,7 +5,7 @@ import { loadStripe, Stripe } from '@stripe/stripe-js';
 
 // Placeholder values
 const DONATION_GOAL = 10000;
-const CURRENT_DONATIONS = 4500;
+const CURRENT_DONATIONS = 500;
 // IMPORTANT: Replace with your actual public Stripe key
 const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY || 'pk_test_YOUR_PUBLIC_KEY'; // Use environment variable
 
