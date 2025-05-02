@@ -36,16 +36,6 @@ export default function Home() {
         });
         // Parallax might not be desired for the second section, or needs re-triggering
         // Consider removing or adjusting this parallax effect
-        gsap.to(aboutSectionWrapperRef.current, {
-          yPercent: -10,
-          ease: "none",
-          scrollTrigger: {
-            trigger: aboutSectionWrapperRef.current,
-            start: "top bottom", 
-            end: "bottom top",
-            scrub: true,
-          },
-        });
       }
 
       // TODO: Add animations for other sections
