@@ -62,7 +62,9 @@ jobs:
 
     - name: Add Short SHA Tag in Artifact Registry
       id: tag
-      run: |-
+      # Explicitly run the script block with bash -e -c
+      run: |
+        bash -e -c '
         # Calculate short SHA
         SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
         echo "Adding tag $SHORT_SHA to latest image..."
@@ -72,6 +74,7 @@ jobs:
         # Add the short SHA tag to the image tagged 'latest' by Cloud Build, explicitly specifying the project
         gcloud artifacts docker tags add "${IMAGE_LATEST}" "${IMAGE_SHA}" --project="${{ env.GCP_PROJECT_ID }}" --quiet
         echo "Tag $SHORT_SHA added."
+        '
       # Steps run sequentially; build step finishes before this starts
 
     - name: Deploy to Cloud Run
