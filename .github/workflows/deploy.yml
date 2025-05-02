@@ -58,12 +58,14 @@ jobs:
         # Push both tags
         docker push $IMAGE_NAME --all-tags
 
-    - name: Create or Update Secrets in Secret Manager
-      run: |
-        # Create or update each secret
-        echo -n "${{ secrets.STRIPE_SECRET_KEY }}" | gcloud secrets create STRIPE_SECRET_KEY --data-file=- --project="${{ env.GCP_PROJECT_ID }}" || gcloud secrets versions add STRIPE_SECRET_KEY --data-file=- --project="${{ env.GCP_PROJECT_ID }}"
-        echo -n "${{ secrets.GOOGLE_SHEET_ID }}" | gcloud secrets create GOOGLE_SHEET_ID --data-file=- --project="${{ env.GCP_PROJECT_ID }}" || gcloud secrets versions add GOOGLE_SHEET_ID --data-file=- --project="${{ env.GCP_PROJECT_ID }}"
-        echo -n "${{ secrets.GOOGLE_SHEET_RANGE }}" | gcloud secrets create GOOGLE_SHEET_RANGE --data-file=- --project="${{ env.GCP_PROJECT_ID }}" || gcloud secrets versions add GOOGLE_SHEET_RANGE --data-file=- --project="${{ env.GCP_PROJECT_ID }}"
+    - name: Get Secrets from Secret Manager
+      id: secrets
+      uses: google-github-actions/get-secretmanager-secrets@v1
+      with:
+        secrets: |
+          STRIPE_SECRET_KEY:projects/${{ env.GCP_PROJECT_ID }}/secrets/STRIPE_SECRET_KEY/versions/latest
+          GOOGLE_SHEET_ID:projects/${{ env.GCP_PROJECT_ID }}/secrets/GOOGLE_SHEET_ID/versions/latest
+          GOOGLE_SHEET_RANGE:projects/${{ env.GCP_PROJECT_ID }}/secrets/GOOGLE_SHEET_RANGE/versions/latest
 
     - name: Deploy to Cloud Run
       uses: google-github-actions/deploy-cloudrun@v2
@@ -74,8 +76,7 @@ jobs:
         flags: |
           --allow-unauthenticated
           --platform=managed
-          --update-env-vars="NODE_ENV=production,PORT=8080,PRODUCTION_URL=${{ env.PRODUCTION_URL }},NEXT_PUBLIC_BASE_URL=${{ env.PRODUCTION_URL }},NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${{ env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }}"
-          --update-secrets="STRIPE_SECRET_KEY=projects/${{ env.GCP_PROJECT_ID }}/secrets/STRIPE_SECRET_KEY:latest,GOOGLE_SHEET_ID=projects/${{ env.GCP_PROJECT_ID }}/secrets/GOOGLE_SHEET_ID:latest,GOOGLE_SHEET_RANGE=projects/${{ env.GCP_PROJECT_ID }}/secrets/GOOGLE_SHEET_RANGE:latest"
+          --update-env-vars="NODE_ENV=production,PORT=8080,PRODUCTION_URL=${{ env.PRODUCTION_URL }},NEXT_PUBLIC_BASE_URL=${{ env.PRODUCTION_URL }},NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${{ env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }},STRIPE_SECRET_KEY=${{ steps.secrets.outputs.STRIPE_SECRET_KEY }},GOOGLE_SHEET_ID=${{ steps.secrets.outputs.GOOGLE_SHEET_ID }},GOOGLE_SHEET_RANGE=${{ steps.secrets.outputs.GOOGLE_SHEET_RANGE }}"
 
     - name: Output Cloud Run URL
       run: |
