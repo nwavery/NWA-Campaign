@@ -50,8 +50,8 @@ jobs:
           secretmanager.googleapis.com
 
     - name: Create Google Credentials File from Secret
-      run: echo "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > google-credentials.json
-      shell: bash # Ensure bash is used for redirection
+      run: printf '%s' "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > google-credentials.json
+      shell: bash # Ensure bash is used
 
     - name: Build and Push Docker image
       env:
