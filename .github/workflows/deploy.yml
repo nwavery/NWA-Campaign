@@ -50,7 +50,11 @@ jobs:
           secretmanager.googleapis.com
 
     - name: Create Google Credentials File from Secret
-      run: printf '%s' "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > google-credentials.json
+      run: |
+        printf '%s' "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > google-credentials.json
+        echo "---- Start of google-credentials.json (first 50 chars) ----"
+        head -c 50 google-credentials.json
+        echo "---- End of google-credentials.json (first 50 chars) ----"
       shell: bash # Ensure bash is used
 
     - name: Build and Push Docker image
