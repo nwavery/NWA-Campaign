@@ -1,13 +1,13 @@
 # cloudbuild.yaml
 steps:
-  # Step 1: Build the container image with a temporary tag
+  # Step 1: Build the container image and tag it (tagging within step might fail, but build should succeed)
   - name: 'gcr.io/cloud-builders/docker'
     id: BuildImage
     args:
       - 'build'
-      # Use a fixed temporary tag for the build itself
+      # Use the final desired tag format here
       - '--tag'
-      - 'temp-image:latest'
+      - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}"
       # Pass build arguments to the Dockerfile, using provided substitutions
       - '--build-arg'
       - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}'
@@ -19,17 +19,8 @@ steps:
       # Specify the build context directory
       - '.'
 
-  # Step 2: Tag the built image with the correct Artifact Registry path and commit SHA
-  - name: 'gcr.io/cloud-builders/docker'
-    id: TagImage
-    args:
-      - 'tag'
-      - 'temp-image:latest' # Source image
-      # Target image with the correct substitution
-      - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}"
-    waitFor: [BuildImage]
-
 # Specify the final image to push to Artifact Registry after successful build
+# Cloud Build should use this to identify and push the image built in the steps above.
 images:
   - "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}"
 
