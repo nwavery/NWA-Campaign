@@ -16,7 +16,6 @@ env:
   # Stripe public key needed for build and runtime
   NEXT_PUBLIC_STRIPE_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }}
 
-
 jobs:
   deploy:
     name: Build and Deploy
@@ -47,50 +46,29 @@ jobs:
       run: |-
         gcloud services enable \
           artifactregistry.googleapis.com \
-          cloudbuild.googleapis.com \
           run.googleapis.com \
-          secretmanager.googleapis.com # Enable Secret Manager API
+          secretmanager.googleapis.com
 
-    - name: Build and Push Docker Image with Cloud Build (latest tag only)
-      id: build
-      run: |-
-        # We only pass build args here. Cloud Build pushes only 'latest'.
-        gcloud builds submit . 
-          --project="${{ env.GCP_PROJECT_ID }}" 
-          --substitutions=_GCP_REGION="${{ env.GCP_REGION }}",_ARTIFACT_REGISTRY_REPOSITORY="${{ env.ARTIFACT_REGISTRY_REPOSITORY }}",_SERVICE_NAME="${{ env.CLOUD_RUN_SERVICE_NAME }}",_NEXT_PUBLIC_STRIPE_PUBLIC_KEY="${{ env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }}",_PRODUCTION_URL="${{ env.PRODUCTION_URL }}" 
-          --quiet
-
-    - name: Add Short SHA Tag using gcloud (Direct Invocation)
-      id: tag
-      # Single-line invocation to minimize shell parsing issues
-      run: gcloud artifacts docker tags add "${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:latest" "${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:$(echo ${{ github.sha }} | cut -c1-7)" --project="${{ env.GCP_PROJECT_ID }}" --quiet
-      shell: bash
+    - name: Build and Push Docker image
+      env:
+        IMAGE_NAME: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}
+      run: |
+        # Build with both latest and commit SHA tags
+        docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:${{ github.sha }} .
+        # Push both tags
+        docker push $IMAGE_NAME --all-tags
 
     - name: Deploy to Cloud Run
-      id: deploy
-      run: |-
-        # Use the short commit SHA (first 7 chars) for the image tag
-        SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-        echo "Deploying image with tag: $SHORT_SHA"
-        # Construct the image name directly here as it's no longer in GITHUB_ENV
-        IMAGE_SHA="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:${SHORT_SHA}"
-        gcloud run deploy ${{ env.CLOUD_RUN_SERVICE_NAME }} \
-          --image "${IMAGE_SHA}" \
-          --region "${{ env.GCP_REGION }}" \
-          --project="${{ env.GCP_PROJECT_ID }}" \
-          --platform "managed" \
-          --quiet \
-          --allow-unauthenticated \
-          --update-env-vars="NODE_ENV=production,PORT=8080,PRODUCTION_URL=${{ env.PRODUCTION_URL }},NEXT_PUBLIC_BASE_URL=${{ env.PRODUCTION_URL }},NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${{ env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }}" \
-          # Set runtime secrets from GCP Secret Manager
-          --update-secrets="STRIPE_SECRET_KEY=projects/${{ env.GCP_PROJECT_ID }}/secrets/STRIPE_SECRET_KEY:latest,GOOGLE_SHEET_ID=projects/${{ env.GCP_PROJECT_ID }}/secrets/GOOGLE_SHEET_ID:latest,GOOGLE_SHEET_RANGE=projects/${{ env.GCP_PROJECT_ID }}/secrets/GOOGLE_SHEET_RANGE:latest" 
-          # You might need to adjust the service account Cloud Run runs as,
-          # especially for accessing Google Sheets API. By default it uses the Compute Engine default SA.
-          # --service-account="your-cloud-run-sa@${{ env.GCP_PROJECT_ID }}.iam.gserviceaccount.com" \
-      # Steps run sequentially; tag step finishes before this starts
-
-
-    # If required, you can add egress/ingress settings, VPC connector, etc. here using gcloud flags.
+      uses: google-github-actions/deploy-cloudrun@v2
+      with:
+        service: ${{ env.CLOUD_RUN_SERVICE_NAME }}
+        image: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:${{ github.sha }}
+        region: ${{ env.GCP_REGION }}
+        flags: |
+          --allow-unauthenticated
+          --platform=managed
+          --update-env-vars="NODE_ENV=production,PORT=8080,PRODUCTION_URL=${{ env.PRODUCTION_URL }},NEXT_PUBLIC_BASE_URL=${{ env.PRODUCTION_URL }},NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${{ env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }}"
+          --update-secrets="STRIPE_SECRET_KEY=projects/${{ env.GCP_PROJECT_ID }}/secrets/STRIPE_SECRET_KEY:latest,GOOGLE_SHEET_ID=projects/${{ env.GCP_PROJECT_ID }}/secrets/GOOGLE_SHEET_ID:latest,GOOGLE_SHEET_RANGE=projects/${{ env.GCP_PROJECT_ID }}/secrets/GOOGLE_SHEET_RANGE:latest"
 
     - name: Output Cloud Run URL
       run: |
