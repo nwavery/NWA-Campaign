@@ -8,7 +8,7 @@ steps:
       - 'build'
       - '--tag'
       # Use a fixed, simple tag that doesn't require substitution here
-      - 'image-to-tag' 
+      - 'image-to-tag:latest' 
       # Pass build arguments needed by the Dockerfile
       - '--build-arg'
       - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=$_NEXT_PUBLIC_STRIPE_PUBLIC_KEY'
@@ -19,18 +19,29 @@ steps:
       # Specify the build context directory
       - '.'
 
-  # Step 2: Tag the image using gcloud artifacts command (handles substitution better)
+  # Step 2a: Tag the image with $SHORT_SHA using gcloud
   - name: 'gcr.io/cloud-builders/gcloud'
-    id: TagWithGcloud
+    id: TagWithShortSHA
     args:
       - 'artifacts'
       - 'docker'
       - 'tags'
       - 'add'
-      # Source image tag
-      - 'image-to-tag:latest' 
-      # Target image tag(s) - Cloud Build substitution should work here
+      - 'image-to-tag:latest' # Source image tag
+      # Target image tag with $SHORT_SHA
       - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA'
+    waitFor: [Build]
+
+  # Step 2b: Tag the image with 'latest' using gcloud
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: TagWithLatest
+    args:
+      - 'artifacts'
+      - 'docker'
+      - 'tags'
+      - 'add'
+      - 'image-to-tag:latest' # Source image tag
+      # Target image tag with 'latest'
       - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
     waitFor: [Build]
 
@@ -45,7 +56,8 @@ steps:
       # Push both tags
       - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA'
       - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
-    waitFor: [TagWithGcloud]
+    # Wait for both tags to be added before pushing
+    waitFor: [TagWithShortSHA, TagWithLatest]
 
 
 # Define expected substitution variables that can be passed via --substitutions
