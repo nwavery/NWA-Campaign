@@ -60,39 +60,22 @@ jobs:
           --substitutions=_GCP_REGION="${{ env.GCP_REGION }}",_ARTIFACT_REGISTRY_REPOSITORY="${{ env.ARTIFACT_REGISTRY_REPOSITORY }}",_SERVICE_NAME="${{ env.CLOUD_RUN_SERVICE_NAME }}",_NEXT_PUBLIC_STRIPE_PUBLIC_KEY="${{ env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }}",_PRODUCTION_URL="${{ env.PRODUCTION_URL }}" 
           --quiet
 
-    # Break down tagging logic into separate steps using GITHUB_ENV
-    - name: Calculate Short SHA
-      id: short_sha
-      run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
-      shell: bash
-      
-    - name: Construct Latest Image Path
-      id: image_latest_path
-      run: echo "IMAGE_LATEST=${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:latest" >> $GITHUB_ENV
-      shell: bash
-      
-    - name: Construct SHA Image Path
-      id: image_sha_path
-      # Env vars set in previous steps are available here
-      run: echo "IMAGE_SHA=${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:${{ env.SHORT_SHA }}" >> $GITHUB_ENV
-      shell: bash
-
-    - name: Add Short SHA Tag using gcloud
+    - name: Add Short SHA Tag using gcloud (Direct Invocation)
       id: tag
-      # Env vars set in previous steps are available here
-      run: |
-        echo "Adding tag ${{ env.SHORT_SHA }} to ${{ env.IMAGE_LATEST }}..."
-        gcloud artifacts docker tags add "${{ env.IMAGE_LATEST }}" "${{ env.IMAGE_SHA }}" --project="${{ env.GCP_PROJECT_ID }}" --quiet
-        echo "Tag ${{ env.SHORT_SHA }} added."
+      # Single-line invocation to minimize shell parsing issues
+      run: gcloud artifacts docker tags add "${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:latest" "${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:$(echo ${{ github.sha }} | cut -c1-7)" --project="${{ env.GCP_PROJECT_ID }}" --quiet
       shell: bash
 
     - name: Deploy to Cloud Run
       id: deploy
       run: |-
-        # Use the short commit SHA from the environment
-        echo "Deploying image with tag: ${{ env.SHORT_SHA }}"
+        # Use the short commit SHA (first 7 chars) for the image tag
+        SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+        echo "Deploying image with tag: $SHORT_SHA"
+        # Construct the image name directly here as it's no longer in GITHUB_ENV
+        IMAGE_SHA="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:${SHORT_SHA}"
         gcloud run deploy ${{ env.CLOUD_RUN_SERVICE_NAME }} \
-          --image "${{ env.IMAGE_SHA }}" \
+          --image "${IMAGE_SHA}" \
           --region "${{ env.GCP_REGION }}" \
           --project="${{ env.GCP_PROJECT_ID }}" \
           --platform "managed" \
