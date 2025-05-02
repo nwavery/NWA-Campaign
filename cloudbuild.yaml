@@ -1,28 +1,31 @@
 # cloudbuild.yaml
+options:
+  dynamicSubstitutions: true
+  # Enable substitutions within substitutions
+
 steps:
-  # Build and push using the official Docker image builder
-  - name: 'docker' # Use official docker image
-    entrypoint: bash
+  # Build the container image using the Dockerfile and the constructed tag
+  - name: 'gcr.io/cloud-builders/docker'
+    id: BuildImage
     args:
-      - '-c'
-      - |
-        # Construct the image tag
-        IMAGE_TAG="${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}"
-        echo "Using tag: $IMAGE_TAG"
+      - 'build'
+      # Use the fully constructed tag from substitutions
+      - '--tag'
+      - '${_FULL_IMAGE_TAG}'
+      # Pass build arguments to the Dockerfile, using provided substitutions
+      - '--build-arg'
+      - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}'
+      - '--build-arg'
+      # Use _PRODUCTION_URL substitution for both NEXT_PUBLIC_BASE_URL and PRODUCTION_URL build args
+      - 'NEXT_PUBLIC_BASE_URL=${_PRODUCTION_URL}'
+      - '--build-arg'
+      - 'PRODUCTION_URL=${_PRODUCTION_URL}'
+      # Specify the build context directory
+      - '.'
 
-        # Build the image
-        docker build \
-          --tag "$$IMAGE_TAG" \
-          --build-arg "NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}" \
-          --build-arg "NEXT_PUBLIC_BASE_URL=${_PRODUCTION_URL}" \
-          --build-arg "PRODUCTION_URL=${_PRODUCTION_URL}" \
-          .
-        
-        # Push the image explicitly
-        docker push "$$IMAGE_TAG"
-    id: BuildAndPush
-
-# No top-level images field needed as push is handled in the script
+# Specify the final image to push to Artifact Registry after successful build
+images:
+  - '${_FULL_IMAGE_TAG}'
 
 # Define expected substitution variables that can be passed via --substitutions
 # Default substitutions like PROJECT_ID are automatically available
@@ -33,8 +36,12 @@ substitutions:
   # Default, can be overridden if needed
   _SERVICE_NAME: 'nwa-campaign-website'
   # Default, can be overridden if needed
-  _COMMIT_SHA: '' # Must be passed in via --substitutions from workflow
+  _COMMIT_SHA: ''
+  # Must be passed in via --substitutions from workflow
   _NEXT_PUBLIC_STRIPE_PUBLIC_KEY: ''
   # Must be passed in via --substitutions
   _PRODUCTION_URL: ''
   # Must be passed in via --substitutions 
+
+  # Construct the full image tag using other substitutions
+  _FULL_IMAGE_TAG: '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}' 
