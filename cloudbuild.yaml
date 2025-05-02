@@ -1,16 +1,42 @@
 # cloudbuild.yaml
 
-# Use the top-level 'images' field to automatically build, tag, and push.
-# Cloud Build will substitute built-in variables like PROJECT_ID, _GCP_REGION, 
-# _ARTIFACT_REGISTRY_REPOSITORY, _SERVICE_NAME, and $SHORT_SHA automatically.
-images:
-  - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA'
-  # Also tag as 'latest' for easier reference
-  - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
+steps:
+  # Step 1: Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Build
+    args:
+      - 'build'
+      - '--tag'
+      # Tag with region, project, repo, service name - use $SHORT_SHA for commit hash
+      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA'
+      # Also tag with latest
+      - '--tag'
+      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
+      # Pass build arguments needed by the Dockerfile
+      - '--build-arg'
+      - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=$_NEXT_PUBLIC_STRIPE_PUBLIC_KEY'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_BASE_URL=$_PRODUCTION_URL'
+      - '--build-arg'
+      - 'PRODUCTION_URL=$_PRODUCTION_URL'
+      # Specify the build context directory
+      - '.'
 
-# Define steps only if needed for actions *other* than build/tag/push, 
-# or if more complex build logic is required.
-# In this case, we only need to pass build args, which can be done via options.
+  # Step 2: Push the image tagged with $SHORT_SHA
+  - name: 'gcr.io/cloud-builders/docker'
+    id: PushShortSHA
+    args:
+      - 'push'
+      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA'
+    waitFor: [Build]
+
+  # Step 3: Push the image tagged with latest
+  - name: 'gcr.io/cloud-builders/docker'
+    id: PushLatest
+    args:
+      - 'push'
+      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
+    waitFor: [PushShortSHA] # Wait for the SHA push to complete
 
 # Define expected substitution variables that can be passed via --substitutions
 # Default substitutions like PROJECT_ID, $SHORT_SHA are automatically available
@@ -27,18 +53,5 @@ substitutions:
   # Must be passed in via --substitutions
   _PRODUCTION_URL: ''
 
-# Pass build arguments to the Docker build process
-options:
-  logging: CLOUD_LOGGING_ONLY
-  # Define substitutions for build arguments needed by Dockerfile
-  # Note: These must match the keys in the 'substitutions' block above or be built-in substitutions.
-  # Cloud Build automatically makes user-defined substitutions available as environment variables for the build-args
-  # We just need to map them using build args. Format: --build-arg KEY=VALUE
-  # For some reason Cloud Build sometimes needs explicit mapping even if names match.
-  # Let's try using the direct substitution syntax ($_VAR).
-  buildArgs:
-    - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=$_NEXT_PUBLIC_STRIPE_PUBLIC_KEY'
-    - 'NEXT_PUBLIC_BASE_URL=$_PRODUCTION_URL'
-    - 'PRODUCTION_URL=$_PRODUCTION_URL'
-
+# Removed options block - logging defaults to CLOUD_LOGGING_ONLY anyway
 # Removed _FULL_IMAGE_TAG substitution 
