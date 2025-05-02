@@ -63,11 +63,17 @@ jobs:
     - name: Add Short SHA Tag in Artifact Registry
       id: tag
       run: |
+        echo "Checking gcloud installation..."
+        which gcloud
+        gcloud --version
+        echo "Proceeding with tagging..."
+        
         SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7) && \
         IMAGE_LATEST="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:latest" && \
         IMAGE_SHA="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:${SHORT_SHA}" && \
         echo "Adding tag $SHORT_SHA to $IMAGE_LATEST..." && \
-        gcloud artifacts docker tags add "${IMAGE_LATEST}" "${IMAGE_SHA}" --project="${{ env.GCP_PROJECT_ID }}" --quiet && \
+        # Use full path to gcloud binary
+        /google-cloud-sdk/bin/gcloud artifacts docker tags add "${IMAGE_LATEST}" "${IMAGE_SHA}" --project="${{ env.GCP_PROJECT_ID }}" --quiet && \
         echo "Tag $SHORT_SHA added."
       shell: bash # Explicitly use bash shell for && and variable expansion
 
