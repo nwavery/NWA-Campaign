@@ -12,14 +12,14 @@ steps:
 
         # Build the image
         docker build \
-          --tag "$IMAGE_TAG" \
+          --tag "$$IMAGE_TAG" \
           --build-arg "NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}" \
           --build-arg "NEXT_PUBLIC_BASE_URL=${_PRODUCTION_URL}" \
           --build-arg "PRODUCTION_URL=${_PRODUCTION_URL}" \
           .
         
         # Push the image explicitly
-        docker push "$IMAGE_TAG"
+        docker push "$$IMAGE_TAG"
     id: BuildAndPush
 
 # No top-level images field needed as push is handled in the script
