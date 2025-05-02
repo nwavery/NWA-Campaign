@@ -22,12 +22,17 @@ steps:
   # Step 2: Tag the built image with the $SHORT_SHA tag using docker tag via script
   - name: 'gcr.io/cloud-builders/docker'
     id: TagWithShortSHA
-    # Make substitutions available as env vars
+    # Make substitutions available as env vars (for PROJECT_ID, _GCP_REGION etc.)
     automapSubstitutions: true 
+    # Explicitly map $SHORT_SHA to a new env var for this step
+    env:
+      - 'ENV_SHORT_SHA=$SHORT_SHA'
     script: |
       #!/usr/bin/env bash
       set -e
-      docker tag temp-image:latest "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${SHORT_SHA}"
+      echo "Tagging with SHORT_SHA: ${ENV_SHORT_SHA}"
+      # Use the explicitly mapped env var
+      docker tag temp-image:latest "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${ENV_SHORT_SHA}"
     waitFor: [BuildImage]
 
   # Step 3: Tag the built image with the 'latest' tag using docker tag via script
@@ -44,12 +49,17 @@ steps:
   # Step 4: Push the $SHORT_SHA tagged image via script
   - name: 'gcr.io/cloud-builders/docker'
     id: PushShortSHA
-    # Make substitutions available as env vars
+    # Make substitutions available as env vars (for PROJECT_ID, _GCP_REGION etc.)
     automapSubstitutions: true 
+    # Explicitly map $SHORT_SHA to a new env var for this step
+    env:
+      - 'ENV_SHORT_SHA=$SHORT_SHA'
     script: |
       #!/usr/bin/env bash
       set -e
-      docker push "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${SHORT_SHA}"
+      echo "Pushing SHORT_SHA: ${ENV_SHORT_SHA}"
+      # Use the explicitly mapped env var
+      docker push "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${ENV_SHORT_SHA}"
     # Wait for the specific tag step
     waitFor: [TagWithShortSHA] 
 
