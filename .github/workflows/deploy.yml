@@ -51,22 +51,33 @@ jobs:
           run.googleapis.com \
           secretmanager.googleapis.com # Enable Secret Manager API
 
-    - name: Build and Push Docker Image with Cloud Build
+    - name: Build and Push Docker Image with Cloud Build (latest tag only)
       id: build
       run: |-
-        # Get short SHA for substitutions
-        SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-        echo "Using short SHA for build substitutions: $SHORT_SHA"
+        # We only pass build args here. Cloud Build pushes only 'latest'.
         gcloud builds submit . 
           --project="${{ env.GCP_PROJECT_ID }}" 
-          # Pass substitutions to cloudbuild.yaml, including the short SHA from the workflow
-          --substitutions=_GCP_REGION="${{ env.GCP_REGION }}",_ARTIFACT_REGISTRY_REPOSITORY="${{ env.ARTIFACT_REGISTRY_REPOSITORY }}",_SERVICE_NAME="${{ env.CLOUD_RUN_SERVICE_NAME }}",_GITHUB_SHORT_SHA="${SHORT_SHA}",_NEXT_PUBLIC_STRIPE_PUBLIC_KEY="${{ env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }}",_PRODUCTION_URL="${{ env.PRODUCTION_URL }}" 
+          --substitutions=_GCP_REGION="${{ env.GCP_REGION }}",_ARTIFACT_REGISTRY_REPOSITORY="${{ env.ARTIFACT_REGISTRY_REPOSITORY }}",_SERVICE_NAME="${{ env.CLOUD_RUN_SERVICE_NAME }}",_NEXT_PUBLIC_STRIPE_PUBLIC_KEY="${{ env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }}",_PRODUCTION_URL="${{ env.PRODUCTION_URL }}" 
           --quiet
+
+    - name: Add Short SHA Tag in Artifact Registry
+      id: tag
+      run: |-
+        # Calculate short SHA
+        SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+        echo "Adding tag $SHORT_SHA to latest image..."
+        # Construct the full image names
+        IMAGE_LATEST="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:latest"
+        IMAGE_SHA="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:${SHORT_SHA}"
+        # Add the short SHA tag to the image tagged 'latest' by Cloud Build
+        gcloud artifacts docker tags add "${IMAGE_LATEST}" "${IMAGE_SHA}" --quiet
+        echo "Tag $SHORT_SHA added."
+      # Steps run sequentially; build step finishes before this starts
 
     - name: Deploy to Cloud Run
       id: deploy
       run: |-
-        # Use the short commit SHA (first 7 chars) for the image tag, matching Cloud Build tag
+        # Use the short commit SHA (first 7 chars) for the image tag
         SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
         echo "Deploying image with tag: $SHORT_SHA"
         gcloud run deploy ${{ env.CLOUD_RUN_SERVICE_NAME }} \
@@ -82,6 +93,7 @@ jobs:
           # You might need to adjust the service account Cloud Run runs as,
           # especially for accessing Google Sheets API. By default it uses the Compute Engine default SA.
           # --service-account="your-cloud-run-sa@${{ env.GCP_PROJECT_ID }}.iam.gserviceaccount.com" \
+      # Steps run sequentially; tag step finishes before this starts
 
 
     # If required, you can add egress/ingress settings, VPC connector, etc. here using gcloud flags.
