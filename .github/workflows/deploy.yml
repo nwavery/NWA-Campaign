@@ -76,7 +76,7 @@ jobs:
         flags: |
           --allow-unauthenticated
           --platform=managed
-          --update-env-vars="NODE_ENV=production,PORT=8080,PRODUCTION_URL=${{ env.PRODUCTION_URL }},NEXT_PUBLIC_BASE_URL=${{ env.PRODUCTION_URL }},NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${{ env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }},STRIPE_SECRET_KEY=${{ steps.secrets.outputs.STRIPE_SECRET_KEY }},GOOGLE_SHEET_ID=${{ steps.secrets.outputs.GOOGLE_SHEET_ID }},GOOGLE_SHEET_RANGE=${{ steps.secrets.outputs.GOOGLE_SHEET_RANGE }}"
+          --update-env-vars="NODE_ENV=production,PRODUCTION_URL=${{ env.PRODUCTION_URL }},NEXT_PUBLIC_BASE_URL=${{ env.PRODUCTION_URL }},NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${{ env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }},STRIPE_SECRET_KEY=${{ steps.secrets.outputs.STRIPE_SECRET_KEY }},GOOGLE_SHEET_ID=${{ steps.secrets.outputs.GOOGLE_SHEET_ID }},GOOGLE_SHEET_RANGE=${{ steps.secrets.outputs.GOOGLE_SHEET_RANGE }}"
 
     - name: Output Cloud Run URL
       run: |
