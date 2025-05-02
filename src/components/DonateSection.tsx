@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, Stripe } from '@stripe/stripe-js';
 
 // Placeholder values
 const DONATION_GOAL = 10000;
@@ -10,7 +10,7 @@ const CURRENT_DONATIONS = 4500;
 const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY || 'pk_test_YOUR_PUBLIC_KEY'; // Use environment variable
 
 // Initialize Stripe promise loader
-let stripePromise: Promise<any> | null = null;
+let stripePromise: Promise<Stripe | null> | null = null;
 const getStripe = () => {
   if (!stripePromise && STRIPE_PUBLIC_KEY.startsWith('pk_')) {
     stripePromise = loadStripe(STRIPE_PUBLIC_KEY);

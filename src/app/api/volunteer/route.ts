@@ -69,12 +69,16 @@ export async function POST(req: NextRequest) {
         // Removed console.log of data itself
         return NextResponse.json({ message: 'Sign-up successful! Thank you for joining us.' }, { status: 200 });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Volunteer API Error (Google Sheets):', error);
         let errorMessage = 'An unexpected error occurred processing the sign-up.';
-        // Check for specific Google API errors if needed
-        if (error.response?.data?.error?.message) {
-            errorMessage = `Google Sheets API Error: ${error.response.data.error.message}`;
+
+        // Check for specific Google API errors if needed (refining the structure check)
+        if (typeof error === 'object' && error !== null && 'response' in error &&
+            typeof (error as any).response === 'object' && (error as any).response !== null && 'data' in (error as any).response &&
+            typeof (error as any).response.data === 'object' && (error as any).response.data !== null && 'error' in (error as any).response.data &&
+            typeof (error as any).response.data.error === 'object' && (error as any).response.data.error !== null && 'message' in (error as any).response.data.error) {
+            errorMessage = `Google Sheets API Error: ${(error as any).response.data.error.message}`;
         } else if (error instanceof Error) {
             errorMessage = error.message;
         } else if (typeof error === 'string') {

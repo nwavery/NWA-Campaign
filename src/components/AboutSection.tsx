@@ -43,10 +43,10 @@ export default function AboutSection() {
 
           {/* Bio and Policies - Updated Bio */}
           <div ref={textContentRef} className="w-full md:w-2/3 text-center md:text-left">
-            <h3 className="text-2xl font-semibold mb-4">Why I'm Running</h3> {/* Updated sub-heading */}
+            <h3 className="text-2xl font-semibold mb-4">Why I&apos;m Running</h3> {/* Updated sub-heading */}
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
               {/* Updated bio text */}
-              "As AI and emerging technologies reshape our lives, Oklahoma deserves a voice in Washington who truly understands how they work—and how they should work for people," Nathan says. He believes in meeting constituents where they are—online, on the phone, or face-to-face—and using technology to build the most direct path between voters and their representative.
+              &quot;As AI and emerging technologies reshape our lives, Oklahoma deserves a voice in Washington who truly understands how they work—and how they should work for people,&quot; Nathan says. He believes in meeting constituents where they are—online, on the phone, or face-to-face—and using technology to build the most direct path between voters and their representative.
             </p>
             <h4 className="text-xl font-semibold mb-3 text-red-600 dark:text-red-400">Core Strengths & Values</h4>
             <ul className="list-none space-y-3 text-gray-700 dark:text-gray-300 mb-8 text-lg">
@@ -64,10 +64,10 @@ export default function AboutSection() {
             {/* Add new Vision section */}
             <h4 className="text-xl font-semibold mb-3 text-brand-primary dark:text-blue-400">Vision for OK-3</h4>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
-              Nathan's measure of success won't be how many bills he sponsors, but whether every Oklahoman in the 3rd District feels truly heard. He envisions a future where rural hospitals stay open, broadband reaches every farm and small town, and every constituent can track progress on their concerns with the same ease they order groceries online.
+              Nathan&apos;s measure of success won&apos;t be how many bills he sponsors, but whether every Oklahoman in the 3rd District feels truly heard. He envisions a future where rural hospitals stay open, broadband reaches every farm and small town, and every constituent can track progress on their concerns with the same ease they order groceries online.
             </p>
             <blockquote className="text-lg italic text-gray-600 dark:text-gray-400 border-l-4 border-brand-secondary dark:border-amber-400 pl-4">
-              "If people can see their ideas moving through me to Washington, then I've done my job."
+              &quot;If people can see their ideas moving through me to Washington, then I&apos;ve done my job.&quot;
             </blockquote>
 
             {/* Fade-in text animation is handled by page.tsx */}

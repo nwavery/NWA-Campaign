@@ -16,9 +16,10 @@ async function handleRequest(req: NextRequest) {
       typescript: true,
     });
     console.log('Stripe initialized successfully.');
-  } catch (initError: any) {
+  } catch (initError: unknown) {
     console.error('Stripe initialization failed:', initError);
-    return NextResponse.json({ error: 'Stripe initialization failed.' }, { status: 500 });
+    const message = (initError instanceof Error) ? initError.message : 'Unknown initialization error';
+    return NextResponse.json({ error: `Stripe initialization failed: ${message}` }, { status: 500 });
   }
 
   try {
@@ -74,7 +75,7 @@ async function handleRequest(req: NextRequest) {
     // 5. Return Session ID
     return NextResponse.json({ id: session.id }, { status: 200 });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Check for JSON parsing errors specifically
     if (error instanceof SyntaxError && error.message.includes('JSON')) {
         console.error('Failed to parse request body as JSON:', error);
@@ -82,7 +83,7 @@ async function handleRequest(req: NextRequest) {
     }
     console.error('Error creating Stripe session:', error);
     // Provide more context if possible
-    const errorMessage = error.message || 'Failed to create checkout session';
+    const errorMessage = (error instanceof Error) ? error.message : 'Failed to create checkout session';
     return NextResponse.json({ error: `Stripe session creation failed: ${errorMessage}` }, { status: 500 });
   }
 }
