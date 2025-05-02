@@ -1,17 +1,14 @@
 # cloudbuild.yaml
 
 steps:
-  # Step 1: Build the container image
+  # Step 1: Build the container image with a fixed temporary tag
   - name: 'gcr.io/cloud-builders/docker'
     id: Build
     args:
       - 'build'
       - '--tag'
-      # Tag with region, project, repo, service name - use $SHORT_SHA for commit hash
-      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA'
-      # Also tag with latest
-      - '--tag'
-      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
+      # Use a fixed, simple tag that doesn't require substitution here
+      - 'image-to-tag' 
       # Pass build arguments needed by the Dockerfile
       - '--build-arg'
       - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=$_NEXT_PUBLIC_STRIPE_PUBLIC_KEY'
@@ -22,21 +19,34 @@ steps:
       # Specify the build context directory
       - '.'
 
-  # Step 2: Push the image tagged with $SHORT_SHA
-  - name: 'gcr.io/cloud-builders/docker'
-    id: PushShortSHA
+  # Step 2: Tag the image using gcloud artifacts command (handles substitution better)
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: TagWithGcloud
     args:
-      - 'push'
+      - 'artifacts'
+      - 'docker'
+      - 'images'
+      - 'add-tag'
+      # Source image tag
+      - 'image-to-tag:latest' 
+      # Target image tag(s) - Cloud Build substitution should work here
       - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA'
+      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
     waitFor: [Build]
 
-  # Step 3: Push the image tagged with latest
-  - name: 'gcr.io/cloud-builders/docker'
-    id: PushLatest
+  # Step 3: Push the images using gcloud artifacts command
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: PushWithGcloud
     args:
+      - 'artifacts'
+      - 'docker'
+      - 'images'
       - 'push'
+      # Push both tags
+      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA'
       - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
-    waitFor: [PushShortSHA] # Wait for the SHA push to complete
+    waitFor: [TagWithGcloud]
+
 
 # Define expected substitution variables that can be passed via --substitutions
 # Default substitutions like PROJECT_ID, $SHORT_SHA are automatically available
@@ -44,14 +54,14 @@ substitutions:
   # Default, can be overridden if needed
   _GCP_REGION: 'us-central1'
   # Default, can be overridden if needed
-  _ARTIFACT_REGISTRY_REPOSITORY: 'nwa-campaign-images'
+  _ARTIFACT_REGISTRY_REPOSITORY: 'nwa-campaign-images' 
   # Default, can be overridden if needed
-  _SERVICE_NAME: 'nwa-campaign-website'
+  _SERVICE_NAME: 'nwa-campaign-website' 
   # _COMMIT_SHA removed - using built-in $SHORT_SHA instead
   # Must be passed in via --substitutions
-  _NEXT_PUBLIC_STRIPE_PUBLIC_KEY: ''
+  _NEXT_PUBLIC_STRIPE_PUBLIC_KEY: '' 
   # Must be passed in via --substitutions
   _PRODUCTION_URL: ''
 
-# Removed options block - logging defaults to CLOUD_LOGGING_ONLY anyway
+# Removed options block
 # Removed _FULL_IMAGE_TAG substitution 
