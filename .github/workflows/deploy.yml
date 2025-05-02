@@ -54,16 +54,19 @@ jobs:
     - name: Build and Push Docker Image with Cloud Build
       id: build
       run: |-
+        # Get short SHA for substitutions
+        SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+        echo "Using short SHA for build substitutions: $SHORT_SHA"
         gcloud builds submit . 
           --project="${{ env.GCP_PROJECT_ID }}" 
-          # Pass substitutions to cloudbuild.yaml (COMMIT_SHA is now handled by $SHORT_SHA)
-          --substitutions=_GCP_REGION="${{ env.GCP_REGION }}",_ARTIFACT_REGISTRY_REPOSITORY="${{ env.ARTIFACT_REGISTRY_REPOSITORY }}",_SERVICE_NAME="${{ env.CLOUD_RUN_SERVICE_NAME }}",_NEXT_PUBLIC_STRIPE_PUBLIC_KEY="${{ env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }}",_PRODUCTION_URL="${{ env.PRODUCTION_URL }}" 
+          # Pass substitutions to cloudbuild.yaml, including the short SHA from the workflow
+          --substitutions=_GCP_REGION="${{ env.GCP_REGION }}",_ARTIFACT_REGISTRY_REPOSITORY="${{ env.ARTIFACT_REGISTRY_REPOSITORY }}",_SERVICE_NAME="${{ env.CLOUD_RUN_SERVICE_NAME }}",_GITHUB_SHORT_SHA="${SHORT_SHA}",_NEXT_PUBLIC_STRIPE_PUBLIC_KEY="${{ env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }}",_PRODUCTION_URL="${{ env.PRODUCTION_URL }}" 
           --quiet
 
     - name: Deploy to Cloud Run
       id: deploy
       run: |-
-        # Use the short commit SHA (first 7 chars) for the image tag, matching Cloud Build's $SHORT_SHA
+        # Use the short commit SHA (first 7 chars) for the image tag, matching Cloud Build tag
         SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
         echo "Deploying image with tag: $SHORT_SHA"
         gcloud run deploy ${{ env.CLOUD_RUN_SERVICE_NAME }} \

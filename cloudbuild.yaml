@@ -19,10 +19,11 @@ steps:
       # Specify the build context directory
       - '.'
 
-  # Step 2: Tag and Push using docker commands within the gcloud builder environment
-  - name: 'gcr.io/cloud-builders/gcloud'
+  # Step 2: Tag and Push using docker commands within the docker builder environment
+  # Using script + automap + USER-DEFINED SHA variable passed from workflow
+  - name: 'gcr.io/cloud-builders/docker' # Changed back to docker builder
     id: TagAndPush
-    # Make substitutions available as env vars in the gcloud environment
+    # Make substitutions available as env vars
     automapSubstitutions: true 
     script: |
       #!/usr/bin/env bash
@@ -30,20 +31,20 @@ steps:
       set -e
       
       # Define target image names using environment variables
-      # (These should be correctly substituted by Cloud Build in this gcloud step)
-      TARGET_IMAGE_SHA="${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${SHORT_SHA}"
+      # Using _GITHUB_SHORT_SHA passed from the workflow
+      TARGET_IMAGE_SHA="${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_GITHUB_SHORT_SHA}"
       TARGET_IMAGE_LATEST="${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest"
       
       # Log the variables to verify substitution
       echo "PROJECT_ID: ${PROJECT_ID}"
-      echo "SHORT_SHA: ${SHORT_SHA}"
+      echo "_GITHUB_SHORT_SHA: ${_GITHUB_SHORT_SHA}" # Check the user-defined SHA
       echo "_GCP_REGION: ${_GCP_REGION}"
       echo "_ARTIFACT_REGISTRY_REPOSITORY: ${_ARTIFACT_REGISTRY_REPOSITORY}"
       echo "_SERVICE_NAME: ${_SERVICE_NAME}"
       echo "Tagging image temp-image:latest as ${TARGET_IMAGE_SHA}"
       echo "Tagging image temp-image:latest as ${TARGET_IMAGE_LATEST}"
 
-      # Use docker commands (available in gcloud builder) to tag
+      # Use docker commands to tag
       docker tag temp-image:latest "${TARGET_IMAGE_SHA}"
       docker tag temp-image:latest "${TARGET_IMAGE_LATEST}"
       
@@ -57,7 +58,7 @@ steps:
 
 
 # Define expected substitution variables that can be passed via --substitutions
-# Default substitutions like PROJECT_ID, $SHORT_SHA are automatically available
+# Default substitutions like PROJECT_ID are automatically available ($SHORT_SHA seems broken)
 substitutions:
   # Default, can be overridden if needed
   _GCP_REGION: 'us-central1'
@@ -65,7 +66,8 @@ substitutions:
   _ARTIFACT_REGISTRY_REPOSITORY: 'nwa-campaign-images'
   # Default, can be overridden if needed
   _SERVICE_NAME: 'nwa-campaign-website'
-  # _COMMIT_SHA removed - using built-in $SHORT_SHA instead
+  # User-defined SHA passed from workflow
+  _GITHUB_SHORT_SHA: '' 
   # Must be passed in via --substitutions
   _NEXT_PUBLIC_STRIPE_PUBLIC_KEY: ''
   # Must be passed in via --substitutions
