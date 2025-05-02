@@ -73,17 +73,20 @@ export async function POST(req: NextRequest) {
         console.error('Volunteer API Error (Google Sheets):', error);
         let errorMessage = 'An unexpected error occurred processing the sign-up.';
 
-        // Check for specific Google API errors if needed (refining the structure check)
-        if (typeof error === 'object' && error !== null && 'response' in error &&
-            typeof (error as any).response === 'object' && (error as any).response !== null && 'data' in (error as any).response &&
-            typeof (error as any).response.data === 'object' && (error as any).response.data !== null && 'error' in (error as any).response.data &&
-            typeof (error as any).response.data.error === 'object' && (error as any).response.data.error !== null && 'message' in (error as any).response.data.error) {
-            errorMessage = `Google Sheets API Error: ${(error as any).response.data.error.message}`;
-        } else if (error instanceof Error) {
-            errorMessage = error.message;
+        // Check if error is an object and potentially has a message property
+        if (typeof error === 'object' && error !== null) {
+            // Attempt to access common error message structures
+            const maybeApiError = error as { response?: { data?: { error?: { message?: string } } }; message?: string };
+
+            if (maybeApiError.response?.data?.error?.message) {
+                 errorMessage = `Google Sheets API Error: ${maybeApiError.response.data.error.message}`;
+            } else if (maybeApiError.message) {
+                errorMessage = maybeApiError.message; // Use message if present directly on the error object
+            }
         } else if (typeof error === 'string') {
-            errorMessage = error;
+             errorMessage = error;
         }
+
         return NextResponse.json({ message: 'Failed to process sign-up', error: errorMessage }, { status: 500 });
     }
 } 
