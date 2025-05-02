@@ -19,41 +19,51 @@ steps:
       # Specify the build context directory
       - '.'
 
-  # Step 2: Tag the built image with the $SHORT_SHA tag using docker tag
+  # Step 2: Tag the built image with the $SHORT_SHA tag using docker tag via script
   - name: 'gcr.io/cloud-builders/docker'
     id: TagWithShortSHA
-    args:
-      - 'tag'
-      - 'temp-image:latest' # Source image
-      # Target image using built-in $SHORT_SHA - hoping this substitutes correctly
-      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA'
+    # Make substitutions available as env vars
+    automapSubstitutions: true 
+    script: |
+      #!/usr/bin/env bash
+      set -e
+      docker tag temp-image:latest "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${SHORT_SHA}"
     waitFor: [BuildImage]
 
-  # Step 3: Tag the built image with the 'latest' tag using docker tag
+  # Step 3: Tag the built image with the 'latest' tag using docker tag via script
   - name: 'gcr.io/cloud-builders/docker'
     id: TagWithLatest
-    args:
-      - 'tag'
-      - 'temp-image:latest' # Source image
-      # Target image using 'latest' tag
-      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
+    # Make substitutions available as env vars
+    automapSubstitutions: true 
+    script: |
+      #!/usr/bin/env bash
+      set -e
+      docker tag temp-image:latest "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest"
     waitFor: [BuildImage]
 
-  # Step 4: Push the $SHORT_SHA tagged image
+  # Step 4: Push the $SHORT_SHA tagged image via script
   - name: 'gcr.io/cloud-builders/docker'
     id: PushShortSHA
-    args:
-      - 'push'
-      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA'
-    waitFor: [TagWithShortSHA] # Wait for the specific tag step
+    # Make substitutions available as env vars
+    automapSubstitutions: true 
+    script: |
+      #!/usr/bin/env bash
+      set -e
+      docker push "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${SHORT_SHA}"
+    # Wait for the specific tag step
+    waitFor: [TagWithShortSHA] 
 
-  # Step 5: Push the latest tagged image
+  # Step 5: Push the latest tagged image via script
   - name: 'gcr.io/cloud-builders/docker'
     id: PushLatest
-    args:
-      - 'push'
-      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
-    waitFor: [TagWithLatest] # Wait for the specific tag step
+    # Make substitutions available as env vars
+    automapSubstitutions: true 
+    script: |
+      #!/usr/bin/env bash
+      set -e
+      docker push "${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest"
+    # Wait for the specific tag step
+    waitFor: [TagWithLatest] 
 
 
 # Define expected substitution variables that can be passed via --substitutions
