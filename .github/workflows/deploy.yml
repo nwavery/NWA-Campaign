@@ -51,7 +51,8 @@ jobs:
 
     - name: Create Google Credentials File from Secret
       run: |
-        printf '%s' "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > google-credentials.json
+        echo "Decoding Base64 secret into google-credentials.json..."
+        printf '%s' "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" | base64 --decode > google-credentials.json
         echo "---- Start of google-credentials.json (first 50 chars) ----"
         head -c 50 google-credentials.json
         echo "---- End of google-credentials.json (first 50 chars) ----"
