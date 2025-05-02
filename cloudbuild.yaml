@@ -1,7 +1,26 @@
 # cloudbuild.yaml
 
-# Use the top-level 'images' field to automatically build and push ONLY the 'latest' tag.
+# Explicitly build and tag with :latest, then let the 'images' field handle the push.
 # Dynamic tagging ($SHORT_SHA) will be done in the GitHub Actions workflow AFTER the build.
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Build
+    args:
+      - 'build'
+      # Tag directly with the full :latest path
+      - '--tag'
+      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
+      # Pass build arguments needed by the Dockerfile
+      - '--build-arg'
+      - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=$_NEXT_PUBLIC_STRIPE_PUBLIC_KEY'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_BASE_URL=$_PRODUCTION_URL'
+      - '--build-arg'
+      - 'PRODUCTION_URL=$_PRODUCTION_URL'
+      # Specify the build context directory
+      - '.'
+
+# This tells Cloud Build to push the image tagged ':latest' in the step above.
 images:
   - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
 
@@ -17,12 +36,4 @@ substitutions:
   _NEXT_PUBLIC_STRIPE_PUBLIC_KEY: '' 
   _PRODUCTION_URL: ''
 
-# Pass build arguments to the Docker build process using options.buildArgs
-# This should work with the simple 'images:' field above
-options:
-  logging: CLOUD_LOGGING_ONLY
-  buildArgs:
-    # Use the direct substitution syntax $_VAR here
-    - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=$_NEXT_PUBLIC_STRIPE_PUBLIC_KEY'
-    - 'NEXT_PUBLIC_BASE_URL=$_PRODUCTION_URL'
-    - 'PRODUCTION_URL=$_PRODUCTION_URL' 
+# Removed options block 
