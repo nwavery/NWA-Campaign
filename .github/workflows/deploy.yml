@@ -56,15 +56,18 @@ jobs:
       run: |-
         gcloud builds submit . 
           --project="${{ env.GCP_PROJECT_ID }}" 
-          # Pass substitutions to cloudbuild.yaml, including commit SHA
-          --substitutions=_GCP_REGION="${{ env.GCP_REGION }}",_ARTIFACT_REGISTRY_REPOSITORY="${{ env.ARTIFACT_REGISTRY_REPOSITORY }}",_SERVICE_NAME="${{ env.CLOUD_RUN_SERVICE_NAME }}",_COMMIT_SHA="${{ github.sha }}",_NEXT_PUBLIC_STRIPE_PUBLIC_KEY="${{ env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }}",_PRODUCTION_URL="${{ env.PRODUCTION_URL }}" 
+          # Pass substitutions to cloudbuild.yaml (COMMIT_SHA is now handled by $SHORT_SHA)
+          --substitutions=_GCP_REGION="${{ env.GCP_REGION }}",_ARTIFACT_REGISTRY_REPOSITORY="${{ env.ARTIFACT_REGISTRY_REPOSITORY }}",_SERVICE_NAME="${{ env.CLOUD_RUN_SERVICE_NAME }}",_NEXT_PUBLIC_STRIPE_PUBLIC_KEY="${{ env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }}",_PRODUCTION_URL="${{ env.PRODUCTION_URL }}" 
           --quiet
 
     - name: Deploy to Cloud Run
       id: deploy
       run: |-
+        # Use the short commit SHA (first 7 chars) for the image tag, matching Cloud Build's $SHORT_SHA
+        SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+        echo "Deploying image with tag: $SHORT_SHA"
         gcloud run deploy ${{ env.CLOUD_RUN_SERVICE_NAME }} \
-          --image "${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:${{ github.sha }}" \
+          --image "${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE_NAME }}:$SHORT_SHA" \
           --region "${{ env.GCP_REGION }}" \
           --project="${{ env.GCP_PROJECT_ID }}" \
           --platform "managed" \

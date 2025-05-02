@@ -1,0 +1,195 @@
+starting build "ff2ad13f-cad5-4e58-9756-818b257fa581"
+
+FETCHSOURCE
+Fetching storage object: gs://ad-dev-crm_cloudbuild/source/1746148806.773643-2520fb8947cd47b8a3e2c87f69a36b13.tgz#1746148809431823
+Copying gs://ad-dev-crm_cloudbuild/source/1746148806.773643-2520fb8947cd47b8a3e2c87f69a36b13.tgz#1746148809431823...
+/ [0 files][    0.0 B/  1.3 MiB]                                                
+/ [1 files][  1.3 MiB/  1.3 MiB]                                                
+Operation completed over 1 objects/1.3 MiB.                                      
+BUILD
+Starting Step #0 - "BuildImage"
+Step #0 - "BuildImage": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "BuildImage": Sending build context to Docker daemon  7.139MB
+
+Step #0 - "BuildImage": Step 1/29 : FROM node:18-alpine AS deps
+Step #0 - "BuildImage": 18-alpine: Pulling from library/node
+Step #0 - "BuildImage": f18232174bc9: Already exists
+Step #0 - "BuildImage": dd71dde834b5: Pulling fs layer
+Step #0 - "BuildImage": 1e5a4c89cee5: Pulling fs layer
+Step #0 - "BuildImage": 25ff2da83641: Pulling fs layer
+Step #0 - "BuildImage": 1e5a4c89cee5: Verifying Checksum
+Step #0 - "BuildImage": 25ff2da83641: Verifying Checksum
+Step #0 - "BuildImage": 25ff2da83641: Download complete
+Step #0 - "BuildImage": 1e5a4c89cee5: Download complete
+Step #0 - "BuildImage": dd71dde834b5: Download complete
+Step #0 - "BuildImage": dd71dde834b5: Pull complete
+Step #0 - "BuildImage": 1e5a4c89cee5: Pull complete
+Step #0 - "BuildImage": 25ff2da83641: Pull complete
+Step #0 - "BuildImage": Digest: sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e
+Step #0 - "BuildImage": Status: Downloaded newer image for node:18-alpine
+Step #0 - "BuildImage":  ---> ee77c6cd7c18
+Step #0 - "BuildImage": Step 2/29 : RUN apk add --no-cache libc6-compat
+Step #0 - "BuildImage":  ---> Running in 013821e3185f
+Step #0 - "BuildImage": fetch https://dl-cdn.alpinelinux.org/alpine/v3.21/main/x86_64/APKINDEX.tar.gz
+Step #0 - "BuildImage": fetch https://dl-cdn.alpinelinux.org/alpine/v3.21/community/x86_64/APKINDEX.tar.gz
+Step #0 - "BuildImage": (1/3) Installing musl-obstack (1.2.3-r2)
+Step #0 - "BuildImage": (2/3) Installing libucontext (1.3.2-r0)
+Step #0 - "BuildImage": (3/3) Installing gcompat (1.1.0-r4)
+Step #0 - "BuildImage": OK: 10 MiB in 20 packages
+Step #0 - "BuildImage": Removing intermediate container 013821e3185f
+Step #0 - "BuildImage":  ---> d2bec759a17b
+Step #0 - "BuildImage": Step 3/29 : WORKDIR /app
+Step #0 - "BuildImage":  ---> Running in dfce37965ec5
+Step #0 - "BuildImage": Removing intermediate container dfce37965ec5
+Step #0 - "BuildImage":  ---> f46d70b5d2a9
+Step #0 - "BuildImage": Step 4/29 : COPY package.json package-lock.json* ./
+Step #0 - "BuildImage":  ---> f631857e8ab4
+Step #0 - "BuildImage": Step 5/29 : RUN npm ci
+Step #0 - "BuildImage":  ---> Running in 0231700b9ebe
+Step #0 - "BuildImage": 
+Step #0 - "BuildImage": added 416 packages, and audited 417 packages in 27s
+Step #0 - "BuildImage": 
+Step #0 - "BuildImage": 142 packages are looking for funding
+Step #0 - "BuildImage":   run `npm fund` for details
+Step #0 - "BuildImage": 
+Step #0 - "BuildImage": found 0 vulnerabilities
+Step #0 - "BuildImage": [91mnpm notice
+Step #0 - "BuildImage": npm notice New major version of npm available! 10.8.2 -> 11.3.0
+Step #0 - "BuildImage": npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.3.0
+Step #0 - "BuildImage": npm notice To update run: npm install -g npm@11.3.0
+Step #0 - "BuildImage": npm notice
+Step #0 - "BuildImage": [0mRemoving intermediate container 0231700b9ebe
+Step #0 - "BuildImage":  ---> c07fe52bc335
+Step #0 - "BuildImage": Step 6/29 : FROM node:18-alpine AS builder
+Step #0 - "BuildImage":  ---> ee77c6cd7c18
+Step #0 - "BuildImage": Step 7/29 : WORKDIR /app
+Step #0 - "BuildImage":  ---> Running in 647b619c5585
+Step #0 - "BuildImage": Removing intermediate container 647b619c5585
+Step #0 - "BuildImage":  ---> 9c3e27de1b9a
+Step #0 - "BuildImage": Step 8/29 : COPY --from=deps /app/node_modules ./node_modules
+Step #0 - "BuildImage":  ---> 0419e7cc1bb7
+Step #0 - "BuildImage": Step 9/29 : COPY . .
+Step #0 - "BuildImage":  ---> 9ca4e47f51f2
+Step #0 - "BuildImage": Step 10/29 : ARG NEXT_PUBLIC_STRIPE_PUBLIC_KEY
+Step #0 - "BuildImage":  ---> Running in cccb709d012a
+Step #0 - "BuildImage": Removing intermediate container cccb709d012a
+Step #0 - "BuildImage":  ---> a996c23f4dd8
+Step #0 - "BuildImage": Step 11/29 : ARG NEXT_PUBLIC_BASE_URL
+Step #0 - "BuildImage":  ---> Running in 1f7059d4cb9e
+Step #0 - "BuildImage": Removing intermediate container 1f7059d4cb9e
+Step #0 - "BuildImage":  ---> e3cefd2f47c9
+Step #0 - "BuildImage": Step 12/29 : ARG PRODUCTION_URL
+Step #0 - "BuildImage":  ---> Running in 4499d23984fd
+Step #0 - "BuildImage": Removing intermediate container 4499d23984fd
+Step #0 - "BuildImage":  ---> 3512a466cbc0
+Step #0 - "BuildImage": Step 13/29 : ENV NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${NEXT_PUBLIC_STRIPE_PUBLIC_KEY}
+Step #0 - "BuildImage":  ---> Running in b679295073b3
+Step #0 - "BuildImage": Removing intermediate container b679295073b3
+Step #0 - "BuildImage":  ---> 71cacc50e30b
+Step #0 - "BuildImage": Step 14/29 : ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
+Step #0 - "BuildImage":  ---> Running in 0e0296676a62
+Step #0 - "BuildImage": Removing intermediate container 0e0296676a62
+Step #0 - "BuildImage":  ---> bf409918bfd8
+Step #0 - "BuildImage": Step 15/29 : ENV PRODUCTION_URL=${PRODUCTION_URL}
+Step #0 - "BuildImage":  ---> Running in f6c4a33dc57a
+Step #0 - "BuildImage": Removing intermediate container f6c4a33dc57a
+Step #0 - "BuildImage":  ---> 09880049c9ea
+Step #0 - "BuildImage": Step 16/29 : RUN npm run build
+Step #0 - "BuildImage":  ---> Running in 15c58bb3b34c
+Step #0 - "BuildImage": 
+Step #0 - "BuildImage": > nwa-campaign@0.1.0 build
+Step #0 - "BuildImage": > next build
+Step #0 - "BuildImage": 
+Step #0 - "BuildImage": Attention: Next.js now collects completely anonymous telemetry regarding usage.
+Step #0 - "BuildImage": This information is used to shape Next.js' roadmap and prioritize features.
+Step #0 - "BuildImage": You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+Step #0 - "BuildImage": https://nextjs.org/telemetry
+Step #0 - "BuildImage": 
+Step #0 - "BuildImage":    â–² Next.js 15.3.1
+Step #0 - "BuildImage": 
+Step #0 - "BuildImage":    Creating an optimized production build ...
+Step #0 - "BuildImage":  âœ“ Compiled successfully in 3.6min
+Step #0 - "BuildImage":    Linting and checking validity of types ...
+Step #0 - "BuildImage":    Collecting page data ...
+Step #0 - "BuildImage":    Generating static pages (0/8) ...
+Step #0 - "BuildImage":    Generating static pages (2/8) 
+Step #0 - "BuildImage":    Generating static pages (4/8) 
+Step #0 - "BuildImage":    Generating static pages (6/8) 
+Step #0 - "BuildImage":  âœ“ Generating static pages (8/8)
+Step #0 - "BuildImage":    Finalizing page optimization ...
+Step #0 - "BuildImage":    Collecting build traces ...
+Step #0 - "BuildImage": 
+Step #0 - "BuildImage": Route (app)                                 Size  First Load JS
+Step #0 - "BuildImage": â”Œ â—‹ /                                     326 kB         430 kB
+Step #0 - "BuildImage": â”œ â—‹ /_not-found                            977 B         102 kB
+Step #0 - "BuildImage": â”œ Æ’ /api/create-checkout-session           139 B         101 kB
+Step #0 - "BuildImage": â”œ Æ’ /api/volunteer                         139 B         101 kB
+Step #0 - "BuildImage": â”” â—‹ /thank-you                             696 B         105 kB
+Step #0 - "BuildImage": + First Load JS shared by all             101 kB
+Step #0 - "BuildImage":   â”œ chunks/4bd1b696-b9e56d0422fc4d24.js  53.2 kB
+Step #0 - "BuildImage":   â”œ chunks/684-bff35c70e10b8ff3.js       45.9 kB
+Step #0 - "BuildImage":   â”” other shared chunks (total)          1.92 kB
+Step #0 - "BuildImage": 
+Step #0 - "BuildImage": 
+Step #0 - "BuildImage": â—‹  (Static)   prerendered as static content
+Step #0 - "BuildImage": Æ’  (Dynamic)  server-rendered on demand
+Step #0 - "BuildImage": 
+Step #0 - "BuildImage": [91mnpm notice
+Step #0 - "BuildImage": npm notice New major version of npm available! 10.8.2 -> 11.3.0
+Step #0 - "BuildImage": npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.3.0
+Step #0 - "BuildImage": npm notice To update run: npm install -g npm@11.3.0
+Step #0 - "BuildImage": npm notice
+Step #0 - "BuildImage": [0mRemoving intermediate container 15c58bb3b34c
+Step #0 - "BuildImage":  ---> b413609cd677
+Step #0 - "BuildImage": Step 17/29 : FROM node:18-alpine AS runner
+Step #0 - "BuildImage":  ---> ee77c6cd7c18
+Step #0 - "BuildImage": Step 18/29 : WORKDIR /app
+Step #0 - "BuildImage":  ---> Using cache
+Step #0 - "BuildImage":  ---> 9c3e27de1b9a
+Step #0 - "BuildImage": Step 19/29 : ENV NODE_ENV production
+Step #0 - "BuildImage":  ---> Running in 141f6830121f
+Step #0 - "BuildImage": Removing intermediate container 141f6830121f
+Step #0 - "BuildImage":  ---> f6ef689f72ea
+Step #0 - "BuildImage": Step 20/29 : RUN addgroup --system --gid 1001 nodejs
+Step #0 - "BuildImage":  ---> Running in a24b54164b21
+Step #0 - "BuildImage": Removing intermediate container a24b54164b21
+Step #0 - "BuildImage":  ---> 636ac3153e67
+Step #0 - "BuildImage": Step 21/29 : RUN adduser --system --uid 1001 nextjs
+Step #0 - "BuildImage":  ---> Running in 09ad15f1cd48
+Step #0 - "BuildImage": Removing intermediate container 09ad15f1cd48
+Step #0 - "BuildImage":  ---> b7d508db9130
+Step #0 - "BuildImage": Step 22/29 : COPY --from=builder /app/public ./public
+Step #0 - "BuildImage":  ---> 6fce4e276709
+Step #0 - "BuildImage": Step 23/29 : COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+Step #0 - "BuildImage":  ---> 715d76367618
+Step #0 - "BuildImage": Step 24/29 : COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+Step #0 - "BuildImage":  ---> 9d3a709b028e
+Step #0 - "BuildImage": Step 25/29 : USER nextjs
+Step #0 - "BuildImage":  ---> Running in a95b2dffa4e9
+Step #0 - "BuildImage": Removing intermediate container a95b2dffa4e9
+Step #0 - "BuildImage":  ---> 2f7781c7011f
+Step #0 - "BuildImage": Step 26/29 : EXPOSE 8080
+Step #0 - "BuildImage":  ---> Running in b981205e58af
+Step #0 - "BuildImage": Removing intermediate container b981205e58af
+Step #0 - "BuildImage":  ---> c383f6be1dc7
+Step #0 - "BuildImage": Step 27/29 : ENV PORT 8080
+Step #0 - "BuildImage":  ---> Running in d3604e9a2d6a
+Step #0 - "BuildImage": Removing intermediate container d3604e9a2d6a
+Step #0 - "BuildImage":  ---> 6deb23429e6c
+Step #0 - "BuildImage": Step 28/29 : ENV NEXT_TELEMETRY_DISABLED 1
+Step #0 - "BuildImage":  ---> Running in 0d47fb318953
+Step #0 - "BuildImage": Removing intermediate container 0d47fb318953
+Step #0 - "BuildImage":  ---> 8b8e00a1c51e
+Step #0 - "BuildImage": Step 29/29 : CMD ["node", "server.js"]
+Step #0 - "BuildImage":  ---> Running in 61664bdfa31c
+Step #0 - "BuildImage": Removing intermediate container 61664bdfa31c
+Step #0 - "BuildImage":  ---> 17aaa05ed279
+Step #0 - "BuildImage": Successfully built 17aaa05ed279
+Step #0 - "BuildImage": Successfully tagged temp-image:latest
+Finished Step #0 - "BuildImage"
+Starting Step #1 - "TagImage"
+Step #1 - "TagImage": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #1 - "TagImage": Error parsing reference: "us-central1-docker.pkg.dev/ad-dev-crm/nwa-campaign-images/nwa-campaign-website:" is not a valid repository/tag: invalid reference format
+Finished Step #1 - "TagImage"
+ERROR
+ERROR: build step 1 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
