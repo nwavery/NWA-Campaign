@@ -58,6 +58,13 @@ jobs:
         # Push both tags
         docker push $IMAGE_NAME --all-tags
 
+    - name: Create or Update Secrets in Secret Manager
+      run: |
+        # Create or update each secret
+        echo -n "${{ secrets.STRIPE_SECRET_KEY }}" | gcloud secrets create STRIPE_SECRET_KEY --data-file=- --project="${{ env.GCP_PROJECT_ID }}" || gcloud secrets versions add STRIPE_SECRET_KEY --data-file=- --project="${{ env.GCP_PROJECT_ID }}"
+        echo -n "${{ secrets.GOOGLE_SHEET_ID }}" | gcloud secrets create GOOGLE_SHEET_ID --data-file=- --project="${{ env.GCP_PROJECT_ID }}" || gcloud secrets versions add GOOGLE_SHEET_ID --data-file=- --project="${{ env.GCP_PROJECT_ID }}"
+        echo -n "${{ secrets.GOOGLE_SHEET_RANGE }}" | gcloud secrets create GOOGLE_SHEET_RANGE --data-file=- --project="${{ env.GCP_PROJECT_ID }}" || gcloud secrets versions add GOOGLE_SHEET_RANGE --data-file=- --project="${{ env.GCP_PROJECT_ID }}"
+
     - name: Deploy to Cloud Run
       uses: google-github-actions/deploy-cloudrun@v2
       with:
