@@ -46,7 +46,7 @@ export default function AboutSection() {
             <h3 className="text-2xl font-semibold mb-4">Why I&apos;m Running</h3> {/* Updated sub-heading */}
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
               {/* Updated bio text */}
-              &quot;As AI and other emerging technologies reshape our lives, Oklahoma deserves a voice in Washington who truly understands how they work—and how they should work for people,&quot; Nathan says. He believes in meeting constituents where they are—online, on the phone, or face-to-face—and using technology to build the most direct path between voters and their representative.
+              &quot;As AI and other emerging technologies reshape our lives, Oklahoma deserves a voice in Washington who truly understands how they work—and how they should work for people,&quot; Nathan says. He believes in meeting constituents where they are—online, on the phone, or face-to-face—and using technology to build the most direct path between voters and their representatives.
             </p>
             <h4 className="text-xl font-semibold mb-3 text-red-600 dark:text-red-400">Core Strengths & Values</h4>
             <ul className="list-none space-y-3 text-gray-700 dark:text-gray-300 mb-8 text-lg">
