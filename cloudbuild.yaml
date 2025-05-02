@@ -35,10 +35,10 @@ options:
   # Cloud Build automatically makes user-defined substitutions available as environment variables for the build-args
   # We just need to map them using build args. Format: --build-arg KEY=VALUE
   # For some reason Cloud Build sometimes needs explicit mapping even if names match.
-  # Let's use the user-defined substitutions directly in the args definition.
+  # Let's try using the direct substitution syntax ($_VAR).
   buildArgs:
-    - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}'
-    - 'NEXT_PUBLIC_BASE_URL=${_PRODUCTION_URL}'
-    - 'PRODUCTION_URL=${_PRODUCTION_URL}'
+    - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=$_NEXT_PUBLIC_STRIPE_PUBLIC_KEY'
+    - 'NEXT_PUBLIC_BASE_URL=$_PRODUCTION_URL'
+    - 'PRODUCTION_URL=$_PRODUCTION_URL'
 
 # Removed _FULL_IMAGE_TAG substitution 
