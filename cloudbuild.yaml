@@ -1,17 +1,14 @@
 # cloudbuild.yaml
-options:
-  dynamicSubstitutions: true
-  # Enable substitutions within substitutions
 
 steps:
-  # Build the container image using the Dockerfile and the constructed tag
+  # Step 1: Build the container image with a temporary tag
   - name: 'gcr.io/cloud-builders/docker'
     id: BuildImage
     args:
       - 'build'
-      # Use the fully constructed tag from substitutions
+      # Use a fixed temporary tag for the build itself
       - '--tag'
-      - '${_FULL_IMAGE_TAG}'
+      - 'temp-image:latest'
       # Pass build arguments to the Dockerfile, using provided substitutions
       - '--build-arg'
       - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${_NEXT_PUBLIC_STRIPE_PUBLIC_KEY}'
@@ -23,9 +20,26 @@ steps:
       # Specify the build context directory
       - '.'
 
-# Specify the final image to push to Artifact Registry after successful build
-images:
-  - '${_FULL_IMAGE_TAG}'
+  # Step 2: Tag the built image with the correct Artifact Registry path and commit SHA
+  - name: 'gcr.io/cloud-builders/docker'
+    id: TagImage
+    args:
+      - 'tag'
+      - 'temp-image:latest' # Source image
+      # Target image with the correct substitution (using single quotes for Cloud Build substitution)
+      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}'
+    waitFor: [BuildImage]
+
+  # Step 3: Push the correctly tagged image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: PushImage
+    args:
+      - 'push'
+      # Target image with the correct substitution (using single quotes for Cloud Build substitution)
+      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}'
+    waitFor: [TagImage]
+
+# No top-level images field needed as push is handled explicitly
 
 # Define expected substitution variables that can be passed via --substitutions
 # Default substitutions like PROJECT_ID are automatically available
@@ -43,5 +57,4 @@ substitutions:
   _PRODUCTION_URL: ''
   # Must be passed in via --substitutions 
 
-  # Construct the full image tag using other substitutions
-  _FULL_IMAGE_TAG: '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:${_COMMIT_SHA}' 
+# Removed _FULL_IMAGE_TAG substitution 
