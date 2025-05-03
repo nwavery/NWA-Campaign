@@ -1,6 +1,6 @@
-# Nathan Avery for Congress (Oklahoma's 3rd District) - Website
+# Nathan Avery for Congress - Website
 
-This project is the official campaign website for Nathan Avery, candidate for U.S. Representative in Oklahoma's 3rd Congressional District. It is built with modern web technologies:
+This project is the official campaign website for Nathan Avery, candidate for U.S. Representative from Oklahoma. It is built with modern web technologies:
 
 *   **Framework**: [Next.js](https://nextjs.org/) (App Router)
 *   **Language**: [TypeScript](https://www.typescriptlang.org/)

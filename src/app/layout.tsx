@@ -12,8 +12,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteTitle = "Nathan Avery for Congress | Oklahoma's 3rd District";
-const siteDescription = "Official campaign website for Nathan Avery, running for U.S. Representative in Oklahoma's 3rd Congressional District.";
+const siteTitle = "Nathan Avery for Congress";
+const siteDescription = "Official campaign website for Nathan Avery, running for U.S. Representative in Oklahoma.";
 const siteUrl = process.env.PRODUCTION_URL || 'http://localhost:3000'; // Use production URL or fallback
 const ogImageUrl = `${siteUrl}/nathan-avery.jpg`; // Construct full URL for the OG image
 
