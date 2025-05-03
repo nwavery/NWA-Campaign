@@ -2,8 +2,7 @@
 
 import React, { useState, FormEvent, useRef, useEffect } from 'react';
 import gsap from 'gsap';
-// Remove Image import if no longer needed elsewhere in file
-// import Image from 'next/image'; 
+import Image from 'next/image';
 
 export default function GetInvolvedSection() {
   // Update state: remove interests, add zip
@@ -120,6 +119,17 @@ export default function GetInvolvedSection() {
         <div className="relative md:w-1/2 md:ml-auto p-8 rounded-lg shadow-lg min-h-[600px] flex flex-col justify-center">
           {/* Added min-h-[600px] here to ensure section height */}
           {/* Added flex flex-col justify-center again */}
+          
+          {/* Add Campaign Logo */}
+          <div className="flex justify-center mb-6"> {/* Center the image horizontally */}
+            <Image 
+              src="/bigcampaignlogo.png" 
+              alt="Campaign Logo"
+              width={225} // Increased size by 50%
+              height={225} // Increased size by 50%
+              className="mx-auto" // Optional: redundant if parent is flex centering
+            />
+          </div>
           
           {/* Form Heading */}
           <div className="text-center mb-8"> 
