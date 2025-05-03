@@ -62,7 +62,7 @@ export default function AboutSection() {
             </ul>
 
             {/* Add new Vision section */}
-            <h4 className="text-xl font-semibold mb-3 text-brand-primary dark:text-blue-400">Vision for OK-3</h4>
+            <h4 className="text-xl font-semibold mb-3 text-brand-primary dark:text-blue-400">Vision for Oklahoma</h4>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
               Nathan&apos;s measure of success won&apos;t be how many bills he sponsors, but whether every Oklahoman in his District feels truly heard. He envisions a future where rural hospitals stay open, broadband reaches every farm and small town, and every constituent can track progress on their concerns with the same ease they order groceries online.
             </p>
