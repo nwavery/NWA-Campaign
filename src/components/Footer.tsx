@@ -59,10 +59,14 @@ export default function Footer() {
             </div>
           </div>
         </div>
+
+        {/* Copyright and Disclaimer */}
         <div className="mt-8 pt-8 border-t border-gray-700 text-center text-sm">
-          <p>&copy; {new Date().getFullYear()} Nathan Avery for Congress. All rights reserved.</p>
-          <p>Paid for by the Committee to Elect Nathan Avery.</p>
-          {/* TODO: Add Privacy Policy/Terms links if required */}
+          {/* Add padding, border, and rounded corners to this div */}
+          <div className="p-6 border border-brand-accent rounded-md inline-block dark:border-amber-400"> 
+            <p className="text-base text-brand-accent dark:text-amber-400">Paid for by Nathan Avery for Congress</p>
+            {/* TODO: Add Privacy Policy/Terms links if required */}
+          </div>
         </div>
       </div>
     </footer>
