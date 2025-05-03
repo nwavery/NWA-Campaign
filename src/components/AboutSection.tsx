@@ -54,7 +54,7 @@ export default function AboutSection() {
                 <strong className="font-semibold">Communication:</strong> Whether breaking down technical concepts for neighbors in coffee shops or translating policy debates into plain English, Nathan excels at listening, clarifying, and connecting.
               </li>
               <li>
-                <strong className="font-semibold">Empathy:</strong> From his years behind the wheel as an Uber driver to daily stand-ups with software teams, he prides himself on understanding diverse perspectives—and amplifying them.
+                <strong className="font-semibold">Empathy:</strong> From his years as an Uber driver to daily stand-ups with software teams as an engineer, he prides himself on understanding diverse perspectives—and amplifying them.
               </li>
               <li>
                 <strong className="font-semibold">Dedication:</strong> With only his loyal dog, Willow, by his side, Nathan has the freedom to devote 100% of his time to listening tours, town halls, and constituent services.
