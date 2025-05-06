@@ -2,12 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
+// Import icons from Simple Icons set
+import { SiTiktok, SiInstagram, SiThreads } from 'react-icons/si';
 
-// Placeholder social links
+// Updated social links with icon components
 const socialLinks = [
-  { name: 'Facebook', href: '#', icon: '📘' }, // Replace # and icon
-  { name: 'Twitter', href: '#', icon: '🐦' }, // Replace # and icon
-  { name: 'Instagram', href: '#', icon: '📸' }, // Replace # and icon
+  { name: 'TikTok', href: 'https://tiktok.com/@averyforok', icon: <SiTiktok /> },
+  { name: 'Instagram', href: 'https://instagram.com/averyforok', icon: <SiInstagram /> },
+  { name: 'Threads', href: 'https://threads.net/@averyforok', icon: <SiThreads /> },
 ];
 
 // Placeholder quick nav links (adjust based on final sections)
@@ -52,8 +54,7 @@ export default function Footer() {
             <div className="flex justify-center md:justify-start space-x-4">
               {socialLinks.map((link) => (
                 <a key={link.name} href={link.href} target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-white">
-                  <span aria-label={link.name}>{link.icon}</span>
-                  {/* TODO: Replace text icons with actual icons (e.g., from react-icons) */}
+                  {link.icon}
                 </a>
               ))}
             </div>
