@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+// Removed unused React import
 import Link from 'next/link';
 // Import icons from Simple Icons set
 import { SiTiktok, SiInstagram, SiThreads } from 'react-icons/si';

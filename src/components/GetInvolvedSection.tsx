@@ -150,9 +150,8 @@ export default function GetInvolvedSection() {
             <Image 
               src="/bigcampaignlogo.png" 
               alt="Campaign Logo"
-              width={225} // Increased size by 50%
-              height={225} // Increased size by 50%
-              className="mx-auto" // Optional: redundant if parent is flex centering
+              width={225}
+              height={225}
             />
           </div>
           

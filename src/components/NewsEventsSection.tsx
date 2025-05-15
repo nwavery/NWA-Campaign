@@ -1,7 +1,5 @@
 'use client';
 
-import React from 'react';
-
 // Sample data for news and events
 const events = [
   {

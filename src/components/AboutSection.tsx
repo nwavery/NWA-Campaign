@@ -1,17 +1,12 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React from 'react';
 import Image from 'next/image';
 
 export default function AboutSection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const photoRef = useRef<HTMLDivElement>(null);
-  const textContentRef = useRef<HTMLDivElement>(null);
-
   return (
-    <section ref={sectionRef} id="about" className="py-16 md:py-24 bg-gray-50 dark:bg-gray-800 relative overflow-hidden">
-      {/* Optional: Add a background element here for parallax if needed */}
-      {/* <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-green-100 dark:from-blue-900 dark:to-green-900 z-0 opacity-50"></div> */}
+    <section id="about" className="py-16 md:py-24 bg-gray-50 dark:bg-gray-800 relative overflow-hidden">
+      {/* Commented out parallax div and its comment removed */}
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-brand-accent dark:text-amber-400">
@@ -19,7 +14,7 @@ export default function AboutSection() {
         </h2>
         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
           {/* Candidate Photo Area - Allow stacking */}
-          <div ref={photoRef} className="w-full md:w-1/3 flex flex-col items-center justify-center">
+          <div className="w-full md:w-1/3 flex flex-col items-center justify-center">
              {/* Nathan's Photo */}
             <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden shadow-lg border-4 border-brand-accent dark:border-amber-400">
               <Image
@@ -42,7 +37,7 @@ export default function AboutSection() {
           </div>
 
           {/* Bio and Policies - Updated Bio */}
-          <div ref={textContentRef} className="w-full md:w-2/3 text-center md:text-left">
+          <div className="w-full md:w-2/3 text-center md:text-left">
             <h3 className="text-2xl font-semibold mb-4">Why I&apos;m Running</h3> {/* Updated sub-heading */}
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
               {/* Updated bio text */}

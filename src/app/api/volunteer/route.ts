@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
         const response = await sheets.spreadsheets.values.append({
             spreadsheetId: sheetId,
             range: sheetRange, // Append to the specified sheet/tab
-            valueInputOption: 'USER_ENTERED', // Interpret data as if user typed it
+            valueInputOption: 'RAW', // Treat input as raw strings, do not parse formulas
             insertDataOption: 'INSERT_ROWS', // Insert new rows
             requestBody: {
                 values: [newRow],
