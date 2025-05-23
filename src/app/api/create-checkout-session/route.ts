@@ -1,56 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-async function handleRequest(req: NextRequest) {
-  // 1. Check for Secret Key
-  const secretKey = process.env.STRIPE_SECRET_KEY;
-  if (!secretKey) {
-    console.error('Stripe secret key is not set in environment variables.');
-    return NextResponse.json({ error: 'Server configuration error: Missing Stripe secret key.' }, { status: 500 });
-  }
+// Initialize Stripe client at module scope
+const secretKey = process.env.STRIPE_SECRET_KEY;
+let stripe: Stripe | undefined;
+let stripeInitializationError: Error | null = null;
 
-  // 2. Initialize Stripe within the handler
-  let stripe: Stripe;
+if (secretKey) {
   try {
     stripe = new Stripe(secretKey, {
       typescript: true,
+      // Consider adding apiVersion if you want to pin to a specific Stripe API version
+      // apiVersion: '2023-10-16', 
     });
-    console.log('Stripe initialized successfully.');
-  } catch (initError: any) {
-    console.error('Stripe initialization failed:', initError);
-    return NextResponse.json({ error: 'Stripe initialization failed.' }, { status: 500 });
+    console.log('Stripe client initialized at module scope.');
+  } catch (e) {
+    stripeInitializationError = e instanceof Error ? e : new Error('Unknown Stripe initialization error');
+    console.error('Stripe client initialization failed at module scope:', stripeInitializationError);
+  }
+} else {
+  console.error('Stripe secret key is not set in environment variables. Stripe client not initialized.');
+  // Set a generic error if key is missing, so handleRequest can check stripeInitializationError
+  stripeInitializationError = new Error('Server configuration error: Missing Stripe secret key.');
+}
+
+async function handleRequest(req: NextRequest) {
+  // 1. Check if Stripe client was initialized successfully
+  if (!stripe || stripeInitializationError) {
+    const errorMessage = stripeInitializationError ? 
+      (stripeInitializationError.message.includes('Missing Stripe secret key') ? 
+        stripeInitializationError.message : 
+        `Stripe initialization failed: ${stripeInitializationError.message}`) :
+      'Stripe client not available.'; // Fallback, should be caught by !secretKey earlier
+    
+    console.error(errorMessage); // Log the specific initialization error or missing key error
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 
+  // 2. Process the request (amount validation, session creation)
   try {
-    // Read the amount from the request body
     const body = await req.json();
     const amountInCents = body.amount;
 
-    // Validate the amount received from the frontend
     if (typeof amountInCents !== 'number' || amountInCents <= 0 || !Number.isInteger(amountInCents)) {
       console.error('Invalid amount received:', amountInCents);
       return NextResponse.json({ error: 'Invalid donation amount provided.' }, { status: 400 });
     }
 
-    // Basic sanity check for amount (e.g., less than $2,000)
     if (amountInCents > 200000) { // $2,000.00
       console.error('Excessive amount received:', amountInCents);
       return NextResponse.json({ error: 'Donation amount is too large.' }, { status: 400 });
     }
 
-    // Determine base URL based on environment
     const environment = process.env.NODE_ENV;
-    const productionUrl = process.env.PRODUCTION_URL || 'https://averyforok.com'; // Your production URL
+    const productionUrl = process.env.PRODUCTION_URL || 'https://averyforok.com';
     const developmentUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const baseUrl = environment === 'production' ? productionUrl : developmentUrl;
 
-    // 3. Define URLs
     const successUrl = `${baseUrl}/thank-you`;
     const cancelUrl = `${baseUrl}/`;
 
     console.log(`Base URL: ${baseUrl}`);
     console.log(`Creating Stripe session for amount: ${amountInCents} cents`);
-    // 4. Create Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -71,18 +82,15 @@ async function handleRequest(req: NextRequest) {
     });
 
     console.log('Stripe session created:', session.id);
-    // 5. Return Session ID
     return NextResponse.json({ id: session.id }, { status: 200 });
 
-  } catch (error: any) {
-    // Check for JSON parsing errors specifically
+  } catch (error: unknown) {
     if (error instanceof SyntaxError && error.message.includes('JSON')) {
         console.error('Failed to parse request body as JSON:', error);
         return NextResponse.json({ error: 'Invalid request format.' }, { status: 400 });
     }
     console.error('Error creating Stripe session:', error);
-    // Provide more context if possible
-    const errorMessage = error.message || 'Failed to create checkout session';
+    const errorMessage = (error instanceof Error) ? error.message : 'Failed to create checkout session';
     return NextResponse.json({ error: `Stripe session creation failed: ${errorMessage}` }, { status: 500 });
   }
 }

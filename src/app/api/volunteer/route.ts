@@ -1,5 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { google, Auth } from 'googleapis';
+import { z } from 'zod';
+
+// Define the schema for the request body
+const volunteerSchema = z.object({
+  name: z.string().min(1, { message: "Name is required" }).max(100, { message: "Name must be 100 characters or less" }),
+  email: z.string().email({ message: "Invalid email address" }),
+  // Basic US ZIP code validation (5 digits or 5+4 digits)
+  zip: z.string().regex(/^\d{5}(-\d{4})?$/, { message: "Invalid ZIP code format" }),
+  // Phone is optional, but if provided, validate basic format (allowing spaces, dashes, parens)
+  // Adjust regex as needed for stricter validation
+  phone: z.string().max(20, { message: "Phone number seems too long" }).optional().or(z.literal('')),
+});
 
 // Function to get Google Sheets API client
 async function getSheetsClient() {
@@ -32,12 +44,25 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { name, email, phone, zip } = body;
+        
+        // Validate the request body using the schema
+        const validationResult = volunteerSchema.safeParse(body);
 
-        // Basic validation (expand as needed)
-        if (!name || !email || !zip) {
-            return NextResponse.json({ message: 'Name, Email, and Zip are required' }, { status: 400 });
+        if (!validationResult.success) {
+            // Log the validation errors
+            console.error('Volunteer API Validation Errors:', validationResult.error.flatten());
+            // Return a 400 error with specific field errors
+            return NextResponse.json(
+                { 
+                    message: 'Invalid input data', 
+                    errors: validationResult.error.flatten().fieldErrors 
+                }, 
+                { status: 400 }
+            );
         }
+
+        // Use the validated data
+        const { name, email, phone, zip } = validationResult.data;
 
         // Get authenticated Sheets client
         const sheets = await getSheetsClient();
@@ -46,7 +71,7 @@ export async function POST(req: NextRequest) {
         const newRow = [
             name,
             email,
-            phone || '', // Use empty string if phone is not provided
+            phone || '', // Use validated phone or empty string
             zip,          // Use zip (it's required now)
             new Date().toISOString(), // Add a timestamp
         ];
@@ -57,7 +82,7 @@ export async function POST(req: NextRequest) {
         const response = await sheets.spreadsheets.values.append({
             spreadsheetId: sheetId,
             range: sheetRange, // Append to the specified sheet/tab
-            valueInputOption: 'USER_ENTERED', // Interpret data as if user typed it
+            valueInputOption: 'RAW', // Treat input as raw strings, do not parse formulas
             insertDataOption: 'INSERT_ROWS', // Insert new rows
             requestBody: {
                 values: [newRow],
@@ -69,16 +94,24 @@ export async function POST(req: NextRequest) {
         // Removed console.log of data itself
         return NextResponse.json({ message: 'Sign-up successful! Thank you for joining us.' }, { status: 200 });
 
-    } catch (error: any) {
-        console.error('Volunteer API Error (Google Sheets):', error);
+    } catch (error: unknown) {
+        // Handle JSON parsing errors separately from Zod errors if needed
+        if (error instanceof SyntaxError && error.message.includes('JSON')) {
+            console.error('Failed to parse request body as JSON:', error);
+            return NextResponse.json({ message: 'Invalid request format.' }, { status: 400 });
+        }
+        // Handle other errors (like Google API errors)
+        console.error('Volunteer API Error:', error);
         let errorMessage = 'An unexpected error occurred processing the sign-up.';
-        // Check for specific Google API errors if needed
-        if (error.response?.data?.error?.message) {
-            errorMessage = `Google Sheets API Error: ${error.response.data.error.message}`;
-        } else if (error instanceof Error) {
-            errorMessage = error.message;
+        if (typeof error === 'object' && error !== null) {
+            const maybeApiError = error as { response?: { data?: { error?: { message?: string } } }; message?: string };
+            if (maybeApiError.response?.data?.error?.message) {
+                 errorMessage = `Google Sheets API Error: ${maybeApiError.response.data.error.message}`;
+            } else if (maybeApiError.message) {
+                errorMessage = maybeApiError.message;
+            }
         } else if (typeof error === 'string') {
-            errorMessage = error;
+             errorMessage = error;
         }
         return NextResponse.json({ message: 'Failed to process sign-up', error: errorMessage }, { status: 500 });
     }

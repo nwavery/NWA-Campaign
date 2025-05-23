@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import IssueCard from './IssueCard'; // Import the new IssueCard component
 
 // Placeholder data for issues (can be moved or fetched)

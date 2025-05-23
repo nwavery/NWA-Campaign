@@ -1,16 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, Stripe } from '@stripe/stripe-js';
 
 // Placeholder values
 const DONATION_GOAL = 10000;
-const CURRENT_DONATIONS = 4500;
+const CURRENT_DONATIONS = 500;
 // IMPORTANT: Replace with your actual public Stripe key
 const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY || 'pk_test_YOUR_PUBLIC_KEY'; // Use environment variable
 
 // Initialize Stripe promise loader
-let stripePromise: Promise<any> | null = null;
+let stripePromise: Promise<Stripe | null> | null = null;
 const getStripe = () => {
   if (!stripePromise && STRIPE_PUBLIC_KEY.startsWith('pk_')) {
     stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
@@ -111,7 +111,6 @@ export default function DonateSection() {
   return (
     <section id="donate" className="py-16 md:py-24 bg-white dark:bg-gray-900">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
-        {/* ... Section Title and Progress Bar ... */}
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-brand-primary dark:text-blue-400">
           Support the Campaign
         </h2>
@@ -137,20 +136,18 @@ export default function DonateSection() {
           </div>
         </div>
 
-        {/* Donation Amount Input - Reduced width */}
-        <div className="mb-8 max-w-xs mx-auto"> {/* Reduced max-width back to xs */}
-            <label htmlFor="donationAmount" className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2 text-center"> {/* Increased text size and margin */}
+        <div className="mb-8 max-w-xs mx-auto">
+            <label htmlFor="donationAmount" className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2 text-center">
                 Donation Amount ($)
             </label>
             <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"> {/* Increased padding */}
-                    <span className="text-gray-500 dark:text-gray-400 sm:text-base"> $ </span> {/* Increased text size */}
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span className="text-gray-500 dark:text-gray-400 sm:text-base"> $ </span>
                 </div>
                 <input
                     type="text"
                     name="donationAmount"
                     id="donationAmount"
-                    // Increased text size, padding, and height
                     className="focus:ring-brand-primary focus:border-brand-primary block w-full pl-10 pr-16 sm:text-lg border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-center h-12"
                     placeholder="10.00"
                     value={donationAmount}
@@ -159,15 +156,14 @@ export default function DonateSection() {
                     disabled={isLoading}
                     inputMode="decimal"
                 />
-                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none"> {/* Increased padding */}
-                    <span className="text-gray-500 dark:text-gray-400 sm:text-base" id="price-currency"> {/* Increased text size */}
+                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                    <span className="text-gray-500 dark:text-gray-400 sm:text-base" id="price-currency">
                         USD
                     </span>
                 </div>
             </div>
         </div>
 
-        {/* Donation Button */}
         <div className="text-center">
           <button
             onClick={handleDonateClick}

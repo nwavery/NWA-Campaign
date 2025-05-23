@@ -1,0 +1,39 @@
+# cloudbuild.yaml
+
+# Explicitly build and tag with :latest, then let the 'images' field handle the push.
+# Dynamic tagging ($SHORT_SHA) will be done in the GitHub Actions workflow AFTER the build.
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Build
+    args:
+      - 'build'
+      # Tag directly with the full :latest path
+      - '--tag'
+      - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
+      # Pass build arguments needed by the Dockerfile
+      - '--build-arg'
+      - 'NEXT_PUBLIC_STRIPE_PUBLIC_KEY=$_NEXT_PUBLIC_STRIPE_PUBLIC_KEY'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_BASE_URL=$_PRODUCTION_URL'
+      - '--build-arg'
+      - 'PRODUCTION_URL=$_PRODUCTION_URL'
+      # Specify the build context directory
+      - '.'
+
+# This tells Cloud Build to push the image tagged ':latest' in the step above.
+images:
+  - '${_GCP_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPOSITORY}/${_SERVICE_NAME}:latest'
+
+# Define expected substitution variables needed ONLY for build arguments
+substitutions:
+  # Built-in PROJECT_ID is automatically available
+  # Defaults, can be overridden if needed
+  _GCP_REGION: 'us-central1' 
+  _ARTIFACT_REGISTRY_REPOSITORY: 'nwa-campaign-images'
+  _SERVICE_NAME: 'nwa-campaign-website'
+  # SHA substitutions removed
+  # Build arguments passed from workflow
+  _NEXT_PUBLIC_STRIPE_PUBLIC_KEY: '' 
+  _PRODUCTION_URL: ''
+
+# Removed options block 

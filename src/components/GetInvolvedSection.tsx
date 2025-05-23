@@ -2,8 +2,15 @@
 
 import React, { useState, FormEvent, useRef, useEffect } from 'react';
 import gsap from 'gsap';
-// Remove Image import if no longer needed elsewhere in file
-// import Image from 'next/image'; 
+import Image from 'next/image';
+
+// Define a type for field errors
+type FieldErrors = {
+  name?: string[];
+  email?: string[];
+  zip?: string[];
+  phone?: string[];
+};
 
 export default function GetInvolvedSection() {
   // Update state: remove interests, add zip
@@ -16,12 +23,15 @@ export default function GetInvolvedSection() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({}); // State for specific field errors
 
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => { // Only inputs now
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear the specific field error when the user types
+    setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -29,6 +39,7 @@ export default function GetInvolvedSection() {
     setIsLoading(true);
     setStatusMessage(null);
     setIsError(false);
+    setFieldErrors({}); // Clear previous field errors
 
     // Include zip in the body, remove interests
     const bodyToSend = {
@@ -50,15 +61,27 @@ export default function GetInvolvedSection() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || 'Something went wrong');
+        // Check if it's a validation error (400) with field details
+        if (response.status === 400 && result.errors) {
+          setFieldErrors(result.errors);
+          setStatusMessage('Please correct the errors below.'); 
+        } else {
+          // Handle other non-ok responses (e.g., 500)
+          setStatusMessage(result.message || 'Something went wrong');
+        }
+        setIsError(true);
+        // No need to throw here, we handled the error display logic
+        return; // Stop execution after handling error
       }
 
       setStatusMessage(result.message || 'Sign-up successful!');
       // Update form clearing logic
       setFormData({ name: '', email: '', phone: '', zip: '' }); 
+      setFieldErrors({}); // Clear errors on success
     } catch (error) {
       console.error('Form submission error:', error);
       setIsError(true);
+      setFieldErrors({}); // Clear field errors on unexpected errors
       setStatusMessage(error instanceof Error ? error.message : 'Failed to submit form.');
     } finally {
       setIsLoading(false);
@@ -106,6 +129,7 @@ export default function GetInvolvedSection() {
 
   // Common input styling
   const inputClasses = "block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-brand-primary focus:border-brand-primary bg-white text-gray-900 dark:bg-gray-700 dark:text-white dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 sm:text-sm";
+  const errorTextClasses = "mt-1 text-xs text-red-600 dark:text-red-400";
 
   return (
     /* Apply background to the section, add relative positioning */
@@ -117,9 +141,19 @@ export default function GetInvolvedSection() {
       {/* Container still useful for centering/padding */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Position form column to the right half on medium+ screens */}
-        <div className="relative md:w-1/2 md:ml-auto bg-gray-50 dark:bg-gray-800 p-8 rounded-lg shadow-lg min-h-[600px] flex flex-col justify-center">
+        <div className="relative md:w-1/2 md:ml-auto p-8 rounded-lg shadow-lg min-h-[600px] flex flex-col justify-center">
           {/* Added min-h-[600px] here to ensure section height */}
           {/* Added flex flex-col justify-center again */}
+          
+          {/* Add Campaign Logo */}
+          <div className="flex justify-center mb-6"> {/* Center the image horizontally */}
+            <Image 
+              src="/bigcampaignlogo.png" 
+              alt="Campaign Logo"
+              width={225}
+              height={225}
+            />
+          </div>
           
           {/* Form Heading */}
           <div className="text-center mb-8"> 
@@ -132,33 +166,43 @@ export default function GetInvolvedSection() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate> {/* Added noValidate to rely on server errors */}
             {/* Row 1: Name and Zip */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <input
-                type="text"
-                name="name"
-                id="name"
-                required
-                placeholder="Name*"
-                value={formData.name}
-                onChange={handleChange}
-                className={inputClasses}
-                autoComplete="name"
-                disabled={isLoading}
-              />
-              <input
-                type="text"
-                name="zip"
-                id="zip"
-                required
-                placeholder="Zip*"
-                value={formData.zip}
-                onChange={handleChange}
-                className={inputClasses}
-                autoComplete="postal-code"
-                disabled={isLoading}
-              />
+              <div> {/* Wrapper div for name input + error */}
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  required
+                  placeholder="Name*"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className={inputClasses}
+                  autoComplete="name"
+                  disabled={isLoading}
+                  aria-invalid={!!fieldErrors.name} // Accessibility hint
+                  aria-describedby={fieldErrors.name ? "name-error" : undefined}
+                />
+                {fieldErrors.name && <p id="name-error" className={errorTextClasses}>{fieldErrors.name[0]}</p>}
+              </div>
+              <div> {/* Wrapper div for zip input + error */}
+                <input
+                  type="text"
+                  name="zip"
+                  id="zip"
+                  required
+                  placeholder="Zip*"
+                  value={formData.zip}
+                  onChange={handleChange}
+                  className={inputClasses}
+                  autoComplete="postal-code"
+                  disabled={isLoading}
+                  aria-invalid={!!fieldErrors.zip} // Accessibility hint
+                  aria-describedby={fieldErrors.zip ? "zip-error" : undefined}
+                />
+                {fieldErrors.zip && <p id="zip-error" className={errorTextClasses}>{fieldErrors.zip[0]}</p>}
+              </div>
             </div>
 
             {/* Row 2: Email */}
@@ -174,7 +218,10 @@ export default function GetInvolvedSection() {
                 className={inputClasses}
                 autoComplete="email"
                 disabled={isLoading}
+                aria-invalid={!!fieldErrors.email} // Accessibility hint
+                aria-describedby={fieldErrors.email ? "email-error" : undefined}
               />
+              {fieldErrors.email && <p id="email-error" className={errorTextClasses}>{fieldErrors.email[0]}</p>}
             </div>
 
             {/* Row 3: Phone and Button */}
@@ -190,7 +237,10 @@ export default function GetInvolvedSection() {
                   className={inputClasses}
                   autoComplete="tel"
                   disabled={isLoading}
+                  aria-invalid={!!fieldErrors.phone} // Accessibility hint
+                  aria-describedby={fieldErrors.phone ? "phone-error" : undefined}
                 />
+                {fieldErrors.phone && <p id="phone-error" className={errorTextClasses}>{fieldErrors.phone[0]}</p>}
               </div>
               <button
                 ref={buttonRef}
@@ -209,7 +259,7 @@ export default function GetInvolvedSection() {
 
             {/* Status Message */}
             {statusMessage && (
-              <div className={`text-center text-sm ${isError ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+              <div className={`text-center text-sm mt-4 ${isError ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
                 {statusMessage}
               </div>
             )}

@@ -1,13 +1,15 @@
 'use client';
 
-import React from 'react';
+// Removed unused React import
 import Link from 'next/link';
+// Import icons from Simple Icons set
+import { SiTiktok, SiInstagram, SiThreads } from 'react-icons/si';
 
-// Placeholder social links
+// Updated social links with icon components
 const socialLinks = [
-  { name: 'Facebook', href: '#', icon: '📘' }, // Replace # and icon
-  { name: 'Twitter', href: '#', icon: '🐦' }, // Replace # and icon
-  { name: 'Instagram', href: '#', icon: '📸' }, // Replace # and icon
+  { name: 'TikTok', href: 'https://tiktok.com/@averyforok', icon: <SiTiktok /> },
+  { name: 'Instagram', href: 'https://instagram.com/averyforok', icon: <SiInstagram /> },
+  { name: 'Threads', href: 'https://threads.net/@averyforok', icon: <SiThreads /> },
 ];
 
 // Placeholder quick nav links (adjust based on final sections)
@@ -28,7 +30,7 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold text-white mb-3">Contact Us</h3>
             <p className="mb-1">Email: <a href="mailto:info@averyforok.com" className="hover:text-white hover:underline">info@averyforok.com</a></p>
-            <p>Phone: (405) 315-5886</p>
+            <p>Phone: (405) 345-5881</p>
             {/* TODO: Add physical address if applicable */}
           </div>
 
@@ -52,17 +54,20 @@ export default function Footer() {
             <div className="flex justify-center md:justify-start space-x-4">
               {socialLinks.map((link) => (
                 <a key={link.name} href={link.href} target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-white">
-                  <span aria-label={link.name}>{link.icon}</span>
-                  {/* TODO: Replace text icons with actual icons (e.g., from react-icons) */}
+                  {link.icon}
                 </a>
               ))}
             </div>
           </div>
         </div>
+
+        {/* Copyright and Disclaimer */}
         <div className="mt-8 pt-8 border-t border-gray-700 text-center text-sm">
-          <p>&copy; {new Date().getFullYear()} Nathan Avery for Congress. All rights reserved.</p>
-          <p>Paid for by the Committee to Elect Nathan Avery.</p>
-          {/* TODO: Add Privacy Policy/Terms links if required */}
+          {/* Add padding, border, and rounded corners to this div */}
+          <div className="p-6 border border-brand-accent rounded-md inline-block dark:border-amber-400"> 
+            <p className="text-base text-brand-accent dark:text-amber-400">Paid for by Nathan Avery for Congress</p>
+            {/* TODO: Add Privacy Policy/Terms links if required */}
+          </div>
         </div>
       </div>
     </footer>
